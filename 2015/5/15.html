@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <title>Friday, May 15</title>
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <h1>Friday, May 15</h1>
+
+  <p>
+    I'm setting up this blog on cunix, which I might someday
+    integrate with this static site generator I'm working on
+    very slowly: <a href="https://github.com/nikolas/oblique">oblique</a>
+  </p>
+
+  <p>
+    This week we had a few
+    <a href="https://github.com/ccnmtl/worth2"
+       >E-WORTH</a> run-throughs, where the project
+    manager, designers, and developers all get together and go
+    through the entire application to make sure everything makes
+    sense. The time we spent doing this felt very productive.
+    Because we found so many issues and small changes to make with
+    each piece of the application, it was more like a hack-a-thon
+    than a runthrough.
+  </p>
+
+  <p>
+    Some of the remaining problems are things that I hope to find
+    a way to integrate into
+    <a href="https://github.com/ccnmtl/django-pagetree">Pagetree</a>:
+  </p>
+
+  <ol>
+    <li>
+      Display participants' progress as a percentage instead of just
+      complete/incomplete.
+    </li>
+    <li>
+      There's a bug when calculating the participant's "Next, new session"
+      <small>(PMT #101095)</small>. This bug causes the next, new session be
+      higher than expected, because I'm not differentiating between an
+      "accessed" session, and a "completed" session.
+    </li>
+  </ol>
+
+  <p>
+    The second issue here really came about because the WORTH code
+    that calculates "current session/module", and participant progress
+    is all pretty confusing, and is spread throughout three different
+    places: in the <code>Participant</code> model, in the
+    <code>BaseUserProfile</code> model, and in <code>utils.py</code>.
+    This was all created in a kind of ad-hoc, as-needed basis, with
+    vague goals of generalizing this problem and putting it into
+    Pagetree.
+  </p>
+
+  <p>
+    The central method here is
+    <code>Participant.highest_module_accessed</code>. First of all,
+    I'm
+    <a href="http://stackoverflow.com/q/29832005/173630"
+       >not that confident</a> that this method is always accurate.
+    Also, I think it's poorly named, because it doesn't unambiguously
+    convey what I'm trying to do here.
+  </p>
+
+  <p>
+    Overall, like I mentioned, I think these issues should be addressed in
+    Pagetree. After I apply some quick fixes to WORTH, maybe with Susan's
+    help, I want to think about some ways to represent these kinds of
+    things in the Pagetree API.
+  </p>
+</body>
+</html>
