@@ -1,3 +1,7 @@
 body {
     max-width: 500px;
 }
+
+ul li {
+    list-style: square;
+}
