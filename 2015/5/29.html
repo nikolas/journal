@@ -10,10 +10,72 @@
     <h1>Friday, May 29</h1>
   </header>
 
-  <h3>Making a generic markdown previewer</h3>
   <p>
+    There's a bunch of places in
+    <a href="https://github.com/ccnmtl/dmt">PMT</a> that a Markdown preview
+    of text that's about to be submitted can be helpful. I've been using a
+    JavaScript library called
+    <a href="https://github.com/jonschlinkert/remarkable">remarkable</a> to
+    render the Markdown preview to HTML (see
+    <a href="https://github.com/ccnmtl/dmt/blob/master/media/js/src/utils/markdown_preview.js"
+       >markdown_preview.js</a>).
+  </p>
+
+  <p>
+    PMT's Markdown previewer can occur in many different places on the same
+    page, so I'm initializing each one separately. See
+    <a href="https://github.com/ccnmtl/dmt/blob/master/media/js/src/forms/project_action_item_modals.js"
+       >project_action_item_modals.js</a>, and the parts of
+    <a href="https://github.com/ccnmtl/dmt/blob/master/dmt/templates/main/item_detail.html"
+       >item_detail.html</a> that include
     <a href="https://github.com/ccnmtl/dmt/blob/master/dmt/templates/main/item_detail_textarea_preview.html"
-       >item_detail_textarea_preview.html</a>
+       >item_detail_textarea_preview.html</a>.
+  </p>
+
+  <p>
+    This Markdown previewer could still be more self-contained,
+    and it's easy to wish the implementation was simpler. In
+    <a href="http://emberjs.com/">Ember</a>, you
+    could make a Markdown previewer using an
+    <a href="http://guides.emberjs.com/v1.11.0/components/">Ember Component</a>.
+    If you look through the
+    <a href="http://emberjs.com/blog/">Ember Blog</a>, they seem to be
+    heading in the direction of using Components more and more, in
+    places where you might have found an <code>Ember.View</code> or an
+    <code>Ember.Controller</code> in older Ember code.
+  </p>
+
+  <p>
+    <a href="https://facebook.github.io/react/">React</a> is a JavaScript
+    framework tailored specifically for this kind of UI-centric use case.
+    In fact, React's front page shows
+    <a href="https://facebook.github.io/react/#markdownExample">an example</a>
+    of a Markdown preview component. I haven't made anything in React yet,
+    and
+    <a href="https://facebook.github.io/react/docs/jsx-in-depth.html"
+       >JSX</a> still seems strange to me. But because
+    manipulating
+    <a href="http://en.wikipedia.org/wiki/Document_Object_Model">DOM</a>
+    elements with JavaScript requires so much meticulous
+    attention to various details,
+    some kind of virtual "JavaScript-aware" DOM
+    is ultimately necessary. At that point, to rely so heavily on rendering
+    everything using JavaScript
+    in the user's browser, you lose the simplicity of visiting a web
+    site, downloading an HTML document, and displaying it.
+    There's an answer to that problem as well. You can render the
+    page on both the server and client using the same JavaScript code,
+    with the concepts behind
+    <a href="http://emberjs.com/blog/2014/12/22/inside-fastboot-the-road-to-server-side-rendering.html"
+       >Ember FastBoot</a> and the
+    <a href="http://isomorphic.net/">Isomorphic JavaScript</a> trend.
+  </p>
+
+  <p>
+    In summary, I'll try to clean up PMT's Markdown previewer into a
+    cleaner conceptual model. I also wonder if isomorphic javascript
+    is preferable to traditional javascript applications, and if they
+    will ever become the norm.
   </p>
 
   <footer>
