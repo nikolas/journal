@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Messing with MediaThread's Mustache.js code</title>
+  <link href='http://fonts.googleapis.com/css?family=Lora:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>Messing with MediaThread's Mustache.js code</h1>
+    <time datetime="2015-07-10">Friday, July 10</time>
+  </header>
+
+  <p>
+    <a href="http://mediathread.info/">MediaThread</a>'s
+    Mustache code used a clever 'update' construct
+    as a way to update part of a template. This was useful, but it was
+    some pretty fundamental functionality that was built into Mustache.js
+    version 0.4.0. Porting these changes to the upstream version of
+    Mustache would take lots of work with each new release.
+  </p>
+
+  <p>
+    Instead of porting these changes to standard Mustache.js v2, I've
+    been converting the MediaThread code to use Mustache in the more typical
+    way: call <code>Mustache.render()</code> with a Mustache template
+    and some data, which returns the rendered template. I'm using jQuery to
+    attach the rendered Mustache templates to the DOM.
+  </p>
+
+  <p>
+    Here's an example of the old code:
+  </p>
+
+  <pre>
+    Mustache.update('annotation-list', context, {
+        pre: function(elt) {
+            jQuery(elt).hide();
+            jQuery('.accordion').accordion('destroy');
+        },
+        post: function(elt) {
+            jQuery(elt).show();
+            jQuery('li.annotation-listitem', elt)
+                .each(self.decorateLink);
+        }
+    });
+  </pre>
+
+  <p>
+    And the corresponding section of the template:
+  </p>
+
+  <pre>
+    {{#&gt;&gt;annotation-list}}
+    &lt;ul id="asset-details-annotations-list"&gt;
+        {{#annotation_list}}
+        &lt;li class="annotation-group"&gt;
+            {{#category}}
+            &lt;h4&gt;
+                &lt;div class="color-box"
+                     style="background-color:{{color}}"&gt;
+                &lt;/div&gt;
+                {{title}}
+            &lt;/h4&gt;
+            &lt;div class="accordion"&gt;
+                &lt;!-- etc. ... --&gt;
+            &lt;/div&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+    {{#/&gt;&gt;annotation-list}}
+  </pre>
+
+  <p>
+    The "<code>{{#&gt;&gt;annotation-list}}</code>" syntax isn't standard
+    Mustache. If this was a "partial", you could do:
+    <code>{{> annotation-list }}</code>, according to the
+    <a href="https://mustache.github.io/mustache.5.html">manual</a>.
+    But in order to update this at runtime using jQuery, we just
+    need a unique identifier for this part of the DOM. Since an
+    element's ID is always unique, we can use
+    <code>#asset-details-annotations-list</code>, and remove
+    <code>{{#&gt;&gt;annotation-list}}</code> and
+    <code>{{#/&gt;&gt;annotation-list}}</code>.
+  </p>
+
+  <p>
+    The updated template just looks like this:
+  </p>
+
+  <pre>
+    &lt;ul id="asset-details-annotations-list"&gt;&lt;/ul&gt;
+  </pre>
+
+  <p>
+    And a new template called <code>asset_annotation_list.mustache</code>
+    has the contents of this element:
+  <p>
+
+  <pre>
+    {{#annotation_list}}
+    &lt;li class="annotation-group"&gt;
+        {{#category}}
+        &lt;h4&gt;
+            &lt;div class="color-box"
+                 style="background-color:{{color}}"&gt;
+    &lt;!-- etc. ... --&gt;
+  </pre>
+
+  <p>
+    Now we can update the code in <code>asset.js</code> to use
+    standard <code>Mustache.render()</code>, attaching the results
+    to <code>#asset-details-annotations-list</code>:
+  </p>
+
+  <pre>
+    var $elt = jQuery('#asset-details-annotations-list');
+    $elt.hide();
+    jQuery('.accordion').accordion('destroy');
+    var rendered = Mustache2.render(
+        MediaThread.templates.asset_annotation_list, context);
+    $elt.html(rendered);
+    $elt.show();
+    jQuery('li.annotation-listitem', $elt).each(self.decorateLink);
+    // etc...
+  </pre>
+
+  <p>
+    This is how MediaThread's asset viewer can be updated to standard,
+    upstream Mustache.js. In one case, I just got rid of the old
+    Mustache "partial" and just updated the DOM with jQuery, since
+    there was only one field being updated. This old MediaThread
+    code just updates the asset's title:
+  </p>
+
+  <pre>
+    Mustache.update('asset-view-header', context);
+  </pre>
+
+  <p>
+    We don't really need to load a Mustache template for this.
+    I changed the code to do this instead:
+  </p>
+
+  <pre>
+    jQuery('.asset-view-title').text(context['asset-current'].title);
+  </pre>
+
+  <p>
+    You could argue that the old code is clearer in both my examples.
+    The old code is semantically clearer, but it's
+    also harder to tell what's actually going on, since a lot is
+    happening in <code>Mustache.update()</code>.
+    Also, now we're on a maintained version of Mustache.js, and MediaThread
+    is in a good place for more refactors of this type. Maybe we can
+    unify some of the work this code is doing, using some lessons learned
+    in the newer JavaScript frameworks like Ember and React.
+  </p>
+
+  <footer>
+    <a href="../../">&larr;</a>
+  </footer>
+</body>
+</html>

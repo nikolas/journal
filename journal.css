@@ -6,3 +6,7 @@ body {
 ul li {
     list-style: square;
 }
+
+code {
+    white-space: nowrap;
+}

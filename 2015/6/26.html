@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Optimizing a slow Django view</title>
+  <link href='http://fonts.googleapis.com/css?family=Lora:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>Optimizing a slow Django view</h1>
+    <time datetime="2015-06-26">Friday, June 26</time>
+  </header>
+
+  <p>
+    Here I'll outline some attempts to optimize a slow view &ndash;
+    the facilitator view &ndash; in
+    <a href="https://github.com/ccnmtl/uelc">UELC</a>.
+  </p>
+
+  <p>
+    To find out where time was being spent, I added <code>print('a')</code>,
+    <code>print('b')</code> etc, throughout the <code>get</code> function,
+    and loaded the view while watching the logs.
+  </p>
+
+  <p>
+    After reducing the query count by removing duplicate calls to
+    Pagetree's <code>.block()</code>, I noticed that this page loads
+    four columns of data, displayed as a column for each "group user"
+    in the template. Each iteration of this loop calculating the columns
+    takes about half a second. Not really thinking things through, I
+    figured why not calculate this concurrently, splitting it up into
+    multiple processes, potentially running on different CPUs? After
+    reading about python's
+    <code>multiprocessing</code> library, I refactored the for loop into
+    the function <code>render_user_gates</code>, and came up with this:
+  </p>
+
+  <pre>
+    pool = multiprocessing.Pool(processes=4)
+    args_list = [[u, hierarchy, section, hand, gateblocks]
+                  for u in cohort_users]
+    user_sections = pool.map(render_user_gates, args_list)
+    print('done', len(user_sections))
+  </pre>
+  <small>from <a href="https://github.com/ccnmtl/uelc/blob/facilitator-performance/uelc/main/views.py#L607">here</a>.</small>
+
+  <p>
+    This doesn't work.. I think that it may have even messed up my database.
+    I got a "multiple hierarchies returned" error from pagetree, so I had to
+    get a new database. Because my <code>render_user_gates</code> method makes
+    database queries, it's not an option to just disconnect from the database
+    at the beginning of this function.
+  </p>
+
+  <p>
+    I asked on #django if anyone's using <code>multiprocessing.pool</code>
+    with Django's ORM. Someone named "moldy" said probably not, because it
+    was a really strange thing to do. I guess I didn't even think of how
+    this would behave, deployed on a server, running through gunicorn or
+    something.
+  </p>
+
+  <p>
+    Moldy mentioned that this could be a use case for
+    <a href="http://www.celeryproject.org/">celery</a>. I know we use
+    that on some other projects, like PMT. I'm reading more about
+    celery now &ndash; I don't want to put the time in to set
+    everything up until I'm sure that it would work, and also I would
+    have to be pretty sure that it will actually improve performance
+    in this view.
+  </p>
+
+  <footer>
+    <a href="../../">&larr;</a>
+  </footer>
+</body>
+</html>
