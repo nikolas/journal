@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>September 4</title>
+  <link href='http://fonts.googleapis.com/css?family=Lora:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>
+      Some thoughts on Backbone.js
+    </h1>
+    <time datetime="2015-09-04">Friday, September 4</time>
+  </header>
+
+  <p>
+    I've been working on
+    <a href="http://history-lab.org/">history-lab.org</a>, which consists of
+    a Backbone.js application, with the server-side code using
+    Node's <a href="http://expressjs.com/">Express</a> framework.
+  </p>
+
+  <p>
+    After some fumbling around, I finally read the "Getting Started" section
+    on <a href="http://backbonejs.org/#Getting-started">backbonejs.org</a>,
+    and Backbone is starting to make some sense. Backbone does make it
+    possible to use a templating system to make a template like this:
+  </p>
+
+  <pre>
+    {{#if annotationMode}}
+      &lt;div class="onoffswitch onoffswitch-checked"&gt;
+    {{else}}
+      &lt;div class="onoffswitch"&gt;
+    {{/if}}
+  </pre>
+
+  And then manipulate that property in the <code>render</code>
+  method of the Backbone.View:
+
+  <pre>
+    var MyView = Backbone.View.extend({
+      render: function() {
+        this.$el.html(this.template({
+          annotationMode: false
+        });
+      }
+    });
+  </pre>
+
+  <p>
+    One thing I don't like about Backbone is that they encourage
+    what they call
+    <a href="http://backbonejs.org/#FAQ-bootstrap">"Bootstrapped Models"</a>.
+    Which means, instead of loading the data with an XHR request, it's
+    rendered by the back-end into the page's template, like this:
+  </p>
+
+  <pre>
+    &lt;script&gt;
+      var accounts = new Backbone.Collection;
+      accounts.reset(&lt;%= @accounts.to_json %&gt;);
+      var projects = new Backbone.Collection;
+      projects.reset(&lt;%= @projects.to_json(:collaborators =&gt; true) %&gt;);
+    &lt;/script&gt;
+  </pre>
+
+  <p>
+    Using global variables like that introduces complexity and makes it
+    awkward to use a module system like requirejs.
+  </p>
+
+  <footer>
+    <a href="../../">&larr;</a>
+  </footer>
+</body>
+</html>

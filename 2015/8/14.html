@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>RequireJS, jQuery, and Node.js</title>
+  <link href='http://fonts.googleapis.com/css?family=Lora:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>
+      RequireJS, jQuery, and Node.js
+    </h1>
+    <time datetime="2015-08-14">Friday, August 14</time>
+  </header>
+
+  <p>
+    I'm working on some
+    <a href="http://ccnmtldjango.readthedocs.org/en/latest/javascript_unit_testing.html"
+       >documentation</a> for writing unit tests in JavaScript using our
+    typical mix of RequireJS, jQuery, and Backbone. I ran into an annoying
+    problem that I hadn't anticipated: loading jQuery via RequireJS in node
+    isn't exactly straightforward. When I include jQuery in the list of my
+    module's dependencies and run <code>make mocha</code> I get this error:
+  </p>
+
+  <pre>
+    module "jquery" failed with error:
+    TypeError: Cannot call method 'createElement' of undefined
+  </pre>
+
+  <p>
+    jQuery has been compatible with node.js for a while (see:
+    <a href="http://bugs.jquery.com/ticket/13768"
+       >[1]</a>,
+    <a href="http://blog.jquery.com/2014/01/24/jquery-1-11-and-2-1-released/"
+       >[2]</a>), so I assume this has something to do with how I'm loading
+    jQuery. It's being loaded with RequireJS instead of node's
+    <code>require()</code>.
+  </p>
+
+  <p>
+    So, this is one of the quirks I should've known I'd run into when I
+    decided to test our front-end code in node.js instead of in a web
+    browser. However, I may still be able to continue down this track.
+    I could figure out why jQuery isn't being loaded here. Maybe it's
+    some stupid thing I haven't thought of yet, or maybe it's possible
+    to set up the requirejs config in <code>test-runner.js</code> to
+    behave correctly when loading jQuery.
+  </p>
+
+  <p>
+    If I can't figure out how to include jQuery without a browser's DOM,
+    I could try setting up a
+    <a href="https://github.com/tmpvar/jsdom">jsdom</a> instance in
+    the test runner. Really I just don't want to complicate things too
+    much since the test runner is working alright now, and I don't want it
+    to become fragile or hard to understand.
+  </p>
+
+  <footer>
+    <a href="../../">&larr;</a>
+  </footer>
+</body>
+</html>

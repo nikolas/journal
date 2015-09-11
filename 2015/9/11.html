@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Promises in jQuery</title>
+  <link href='http://fonts.googleapis.com/css?family=Lora:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>
+      Promises in jQuery
+    </h1>
+    <time datetime="2015-09-11">Friday, September 11</time>
+  </header>
+
+  <p>
+    There's a
+    <a href="https://blog.domenic.me/youre-missing-the-point-of-promises/"
+       >good but pretty long post</a> about Promises in JavaScript that's
+    worth skimming over. The author had a hand in defining the
+    <a href="https://promisesaplus.com/">Promises/A+ spec</a>, a successor
+    to the original
+    <a href="https://web.archive.org/web/20150810174730/http://wiki.commonjs.org/wiki/Promises/A"
+       >Promises/A spec</a>.
+  </p>
+
+  <p>
+    jQuery has had its own notion of promises for a while. There's
+    <a href="https://api.jquery.com/promise/">jQuery.promise()</a>, which
+    operates on a CSS selector and is used for determining when animations
+    have completed on DOM elements.
+  </p>
+
+  <p>
+    There's also
+    <a href="https://api.jquery.com/jQuery.Deferred/">jQuery.Deferred</a>,
+    which is a type of object based on the Promises/A spec, but, as pointed
+    out by the blog post I linked to, badly broken in how it handles
+    exceptions. I want to counter that argument by saying that jQuery's
+    promise implementation has been working fine for me. Maybe it doesn't
+    strictly conform to any documented specification, but I haven't found
+    it necessary to introduce a better promise library into Mediathread.
+  </p>
+
+  <p>
+    I've found promises to be a useful abstraction for working with
+    XHR requests. Fortunately, in jQuery, a call to <code>$.ajax()</code>
+    or its related functions returns a
+    <a href="http://api.jquery.com/jQuery.ajax/#jqXHR">jqXHR</a> object,
+    which happens to behave like a Promise:
+  </p>
+
+  <blockquote>
+    The jqXHR objects returned by <code>$.ajax()</code> as of
+    jQuery 1.5 implement the Promise interface, giving them all
+    the properties, methods, and behavior of a Promise.
+  </blockquote>
+
+  <p>
+    You can use promises to perform operations that would otherwise
+    be really complicated. For example, consider this function that
+    makes an xhr request to load a Mustache template:
+  </p>
+
+  <pre>
+    /**
+     * Load a Mustache template from the /media/templates/
+     * directory and put it in the MediaThread.templates
+     * dictionary.
+     *
+     * Returns a jqXHR object.
+     */
+    MediaThread.loadTemplate = function(templateName) {
+	return jQuery.ajax({
+	    url: '/media/templates/' + templateName + '.mustache',
+	    dataType: 'text',
+	    success: function(text) {
+		MediaThread.templates[templateName] = text;
+	    }
+	});
+    };
+  </pre>
+
+  <p>
+    You can then define a function that takes a bunch of template
+    names, and returns an array of jqXHR objects.
+  </p>
+
+  <pre>
+    /**
+     * Load all the asset-related templates.
+     *
+     * Returns an array of jqXHR objects.
+     */
+    var loadTemplates = function(templateNames) {
+	var promises = [];
+
+	for (var i = 0; i < templateNames.length; i++) {
+	    promises.push(MediaThread.loadTemplate(templateNames[i]));
+	}
+
+	return promises;
+    };
+  </pre>
+
+  <p>
+    Given this array of jqXHR promises, how would you determine when
+    everything has been downloaded?
+    More "modern" libraries like RSVP.js have nice methods for dealing
+    with
+    <a href="https://github.com/tildeio/rsvp.js/#arrays-of-promises"
+       >arrays of promises</a>.
+    It's also possible to do this with jQuery, using
+    <a href="https://api.jquery.com/jQuery.when/">jQuery.when()</a>.
+    Notice how <code>jQuery.when()</code> doesn't take an array, but
+    expects the arguments to come in as separate comma-separated
+    parameters. I remembered a way to pass the arguments to a
+    JavaScript function as an array, using
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply"
+       >apply()</a>, so you can do something like this:
+  </p>
+
+  <pre>
+    var self = this;
+    jQuery.when.apply(this, loadTemplates('a', 'b', 'c', 'd'))
+      .then(function() {
+        // This is triggered after each promise created by
+        // loadTemplates() has either been resolved or
+        // rejected.
+        self.initAfterTemplatesLoad();
+      });
+  </pre>
+
+  <footer>
+    <a href="../../">&larr;</a>
+  </footer>
+</body>
+</html>

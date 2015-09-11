@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A Mocha test runner for RequireJS</title>
+  <link href='http://fonts.googleapis.com/css?family=Lora:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>A Mocha test runner for RequireJS</h1>
+    <time datetime="2015-07-17">Friday, July 17</time>
+  </header>
+
+  <p>
+    It took me a while to set up our
+    <a href="https://github.com/ccnmtl/ccnmtldjango">ccnmtldjango</a>
+    template to work with Mocha. The time mostly stemmed from our using
+    RequireJS, and my desire to run the tests with node.js, so the code
+    needed to run on both the web browser and node.
+  </p>
+
+  <p>
+    Node already has a module loading technique (<code>require()</code>),
+    but I still want to load our code with requirejs, since that's how
+    the browser will do. It was essential for me to read requirejs's
+    documentation on running it in node
+    <a href="http://requirejs.org/docs/node.html">here</a>.
+  </p>
+
+  <p>
+    Because I needed to set up requirejs in a manual way, I then needed
+    to call mocha programmatically rather than from the command line
+    (with <code>mocha</code>). Mocha fortunately had some documentation on
+    how to do this
+    <a href="https://github.com/mochajs/mocha/wiki/Using-mocha-programmatically"
+       >here</a>.
+  </p>
+
+  <pre>
+var requirejs = require('requirejs');
+requirejs.config({
+    paths: {
+        'jquery': '../lib/jquery-1.11.3.min',
+        'domReady': '../lib/require/domReady',
+        'underscore': '../lib/underscore-min'
+    },
+    nodeRequire: require
+});
+
+var Mocha = require('mocha');
+var fs = require('fs');
+var path = require('path');
+
+var basePath = './media/js/tests';
+var mocha = new Mocha();
+
+fs.readdirSync(basePath).filter(function(file) {
+    return file !== __filename && file.substr(-3) === '.js';
+}).forEach(function(file) {
+    mocha.addFile(path.join(basePath, file));
+});
+
+mocha.run(function(failures) {
+    process.on('exit', function() {
+        process.exit(failures);
+    });
+});
+  </pre>
+  &lt;<a href="https://github.com/ccnmtl/ccnmtldjango/blob/master/ccnmtldjango/template/media/js/tests/test-runner.js">ref</a>&gt;
+
+  <footer>
+    <a href="../../">&larr;</a>
+  </footer>
+</body>
+</html>
