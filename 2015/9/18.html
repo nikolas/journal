@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A JavaScript antipattern</title>
+  <meta name="author" content="Nik Nyby">
+  <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>A JavaScript antipattern</h1>
+    <time datetime="2015-09-18">Friday, September 18</time>
+  </header>
+
+  <p>
+    In JavaScript, you can get
+    <a href="https://en.wikipedia.org/wiki/Class_%28computer_programming%29">class</a>-like
+    behavior by defining functions like this:
+  </p>
+
+  <pre>
+    var Video = function() {
+        var self = this;
+
+        // init code here
+        this.num = 2;
+ 
+        this.getNum = function() {
+            return self.num;
+        };
+    };
+  </pre>
+
+  <p>
+    Or like this:
+  </p>
+
+  <pre>
+    var Video = function() {
+        // init code here
+        this.num = 2;
+    };
+
+    Video.prototype.getNum = function() {
+        return this.num;
+    };
+  </pre>
+
+  <p>
+    I like the second way better, but the first style works as well.
+    ES6 has a standard way to define classes, see
+    <a href="https://github.com/addyosmani/es6-equivalents-in-es5#classes">https://github.com/addyosmani/es6-equivalents-in-es5#classes</a>,
+    but I'm only talking about ES5.
+  </p>
+
+  <p>
+    I ran across some code in
+    <a href="https://github.com/ccnmtl/SherdJS/">SherdJS</a>
+    that defines a class using the first method I mentioned, and also did some
+    interesting things that I hadn't seen before. Notice how, in 
+    <a href="https://github.com/ccnmtl/SherdJS/blob/master/sherdjs/src/video/views/youtube.js#L40"
+       >youtube.js</a>, a new function is defined at
+    <code>this.microformat.create()</code>. That confused me, because what is
+    <code>this.microformat</code>? Digging further, you notice that
+    <code>Sherd.Video.YouTube</code> is a child class of a few other classes.
+  </p>
+
+  <p>
+    You can find <code>this.microformats</code> in
+    <a href="https://github.com/ccnmtl/SherdJS/blob/master/sherdjs/src/video/views/video.js#L103"
+       >video.js</a>, and it's a plain JS object with a bunch of
+    functions in it. JavaScript is known for its flexibility in allowing you
+    to write confusing code. But this particular pattern could be
+    implemented in Python as well:
+  </p>
+
+  <pre>
+    class Video:
+        microformats = {
+            'create': (lambda x: return ''),
+            'find': (lambda html_dom: return [{'html': html_dom}]),
+            # etc...
+        }
+  </pre>
+
+  <p>
+    But why would you do that? Because these functions don't depend on any
+    instance data, why are they even in the <code>Sherd.Video</code> class?
+  </p>
+
+  <p>
+    However, the <code>YouTube</code> class overrides
+    <code>this.microformats.create()</code> with instance data. I found
+    this confusing, maybe because it's unexpected. I think
+    <code>this.microformats</code> is unnecessary, and if <code>YouTube</code>
+    needs to create a microformat, it can just define a
+    <code>createMicroformat()</code> method.
+  </p>
+
+  <footer>
+    <a href="../../">&larr;</a>
+  </footer>
+</body>
+</html>
