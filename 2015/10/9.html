@@ -2,7 +2,9 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Unit Testing Ideas from Graphics Programming</title>
+        <title>
+            Testing Graphical Simulations vs Django Applications
+        </title>
         <meta name="author" content="Nik Nyby">
         <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="../../journal.css" type="text/css" />
@@ -11,7 +13,9 @@
 
     <article itemscope itemtype="http://schema.org/BlogPosting">
     <header>
-        <h1 itemprop="name">Unit Testing Ideas from Graphics Programming</h1>
+        <h1 itemprop="name">
+            Testing Graphical Simulations vs Django Applications
+        </h1>
         <div style="display: none;" itemprop="author">Nik Nyby</div> 
         <time datetime="2015-10-09" content="2015-10-09" itemprop="datePublished"
 	          >Friday, October 9</time>
@@ -19,7 +23,7 @@
 
   <div itemprop="articleBody">
       <p>
-          Unit testing a graphical physics simulation involves checking
+          Testing a graphical physics simulation involves checking
           values of the calculations at each point in the simulation.
           In order to write tests for a graphical simulation, it's
           probably most straightforward to come up with some sort
@@ -91,13 +95,19 @@ FOSSSim message: Saved residual to residual.txt.
           representation of a particular setup of a Django application?
           Test fixtures are commonplace, and have a specific meaning
           in Django: JSON files used to populate database fields. We
-          use factories instead of fixtures because they're more flexible.
+          use factories instead of fixtures because they're more
+          flexible.
       </p>
 
       <p>
-          Django applications usually have models connected to
-          a database, requiring the test scripts to instantiate a test
-          database. 
+          I don't really have an answer to these questions. Testing
+          Django models and views is well understood, and we have the
+          practice down. I'm just asking these questions to find out if
+          we can speed up the process of running the tests, a pervasive
+          issue when testing Django. Maybe the solution isn't some new
+          approach to testing. Instead, maybe I should just try preserving
+          the test database between test runs so it doesn't have to be set
+          up each time.
       </p>
   </div>
   </article>
