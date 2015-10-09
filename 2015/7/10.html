@@ -2,19 +2,19 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Messing with MediaThread's Mustache.js code</title>
+  <title>Messing with Mediathread's Mustache.js code</title>
   <meta name="author" content="Nik Nyby">
   <link href='http://fonts.googleapis.com/css?family=Lora:400,700' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="../../journal.css" type="text/css" />
 </head>
 <body>
   <header>
-    <h1>Messing with MediaThread's Mustache.js code</h1>
+    <h1>Messing with Mediathread's Mustache.js code</h1>
     <time datetime="2015-07-10">Friday, July 10</time>
   </header>
 
   <p>
-    <a href="http://mediathread.info/">MediaThread</a>'s
+    <a href="http://mediathread.info/">Mediathread</a>'s
     Mustache code used a clever 'update' construct
     as a way to update part of a template. This was useful, but it was
     some pretty fundamental functionality that was built into Mustache.js
@@ -24,7 +24,7 @@
 
   <p>
     Instead of porting these changes to standard Mustache.js v2, I've
-    been converting the MediaThread code to use Mustache in the more typical
+    been converting the Mediathread code to use Mustache in the more typical
     way: call <code>Mustache.render()</code> with a Mustache template
     and some data, which returns the rendered template. I'm using jQuery to
     attach the rendered Mustache templates to the DOM.
@@ -127,10 +127,10 @@
   </pre>
 
   <p>
-    This is how MediaThread's asset viewer can be updated to standard,
+    This is how Mediathread's asset viewer can be updated to standard,
     upstream Mustache.js. In one case, I just got rid of the old
     Mustache "partial" and just updated the DOM with jQuery, since
-    there was only one field being updated. This old MediaThread
+    there was only one field being updated. This old Mediathread
     code just updates the asset's title:
   </p>
 
@@ -152,7 +152,7 @@
     The old code is semantically clearer, but it's
     also harder to tell what's actually going on, since a lot is
     happening in <code>Mustache.update()</code>.
-    Also, now we're on a maintained version of Mustache.js, and MediaThread
+    Also, now we're on a maintained version of Mustache.js, and Mediathread
     is in a good place for more refactors of this type. Maybe we can
     unify some of the work this code is doing, using some lessons learned
     in the newer JavaScript frameworks like Ember and React.
@@ -161,5 +161,19 @@
   <footer>
     <a href="../../">&larr;</a>
   </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'nnyby';
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 </body>
 </html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Testing Mediathread's Chrome extension</title>
+  <meta name="author" content="Nik Nyby">
+  <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="../../journal.css" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>Testing Mediathread's Chrome extension</h1>
+    <time datetime="2015-09-25">Friday, September 25</time>
+  </header>
+
+  <p>
+    We use Mediathread's
+    <a href="https://github.com/ccnmtl/mediathread-chrome">Chrome extension</a>
+    to get images, videos, and sounds from the web into Mediathread,
+    preserving metadata and source info for those assets. It's a port of
+    <a href="https://github.com/ccnmtl/SherdJS/blob/master/sherdjs/src/bookmarklets/sherd.js">the bookmarklet</a> that's also in use right now. We're
+    maintaining the collection code in both the bookmarklet and
+    the extension. Eventually, it might make sense to move the common
+    logic into a library, so it's more easily maintained.
+  </p>
+
+  <p>
+    The way it works is, when you're on a page, say, Wikipedia, you
+    click on either the bookmarklet button or the button for the Chrome
+    extension. The code then looks for anything on the page that should
+    be imported to Mediathread.
+  </p>
+
+  <p>
+    My strategy for testing something like this comprises of both unit
+    tests and tests that fetch example web pages we want to be compatible
+    with to see if they have the expected structure. I don't have very
+    many unit tests yet, but the basic ideas are here, for both test types:
+    <a href="https://github.com/ccnmtl/mediathread-chrome/blob/master/tests/host-handler.js">
+      https://github.com/ccnmtl/mediathread-chrome/blob/master/tests/host-handler.js</a>
+  </p>
+
+  <footer>
+    <a href="../../">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'nnyby';
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</body>
+</html>
