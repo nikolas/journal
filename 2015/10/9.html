@@ -1,40 +1,45 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Unit Testing Ideas from Graphics Programming</title>
-  <meta name="author" content="Nik Nyby">
-  <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
-  <link rel="stylesheet" href="../../journal.css" type="text/css" />
-</head>
-<body>
-  <header>
-    <h1>Unit Testing Ideas from Graphics Programming</h1>
-    <time datetime="2015-10-09">Friday, October 9</time>
-  </header>
+    <head>
+        <meta charset="utf-8">
+        <title>Unit Testing Ideas from Graphics Programming</title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
 
-  <p>
-    Unit testing a graphical physics simulation involves checking
-    values of the calculations at each point in the simulation.
-    In order to write tests for a graphical simulation, it's
-    probably most straightforward to come up with some sort
-    of file format to output the simulation to, which you
-    then read in by your test script. Here's an example session
-    using the test oracle for
-    <a href="http://www.cs.columbia.edu/~cxz/teaching/w4167_f15/"
-       >my class</a>:
-  </p>
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">Unit Testing Ideas from Graphics Programming</h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div> 
+        <time datetime="2015-10-09" content="2015-10-09" itemprop="datePublished"
+	          >Friday, October 9</time>
+    </header>
 
-  <pre>
+  <div itemprop="articleBody">
+      <p>
+          Unit testing a graphical physics simulation involves checking
+          values of the calculations at each point in the simulation.
+          In order to write tests for a graphical simulation, it's
+          probably most straightforward to come up with some sort
+          of file format to output the simulation to, which you
+          then read in by your test script. Here's an example session
+          using the test oracle for
+          <a href="http://www.cs.columbia.edu/~cxz/teaching/w4167_f15/"
+             >my class</a>:
+      </p>
+
+      <pre>
 $ ./simulation -s test02.xml -o binary_output.bin
 FOSSSim message: Saving simulation to: binary_output.bin
 Progress: --------------------------------------------------
           .................................................
 FOSSSim message: Simulation complete at time 3. Exiting.
 FOSSSim message: Saved simulation to file 'binary_output.bin'.
-  </pre>
+      </pre>
 
-  <pre>
+      <pre>
 $ oracle -s test02.xml -i binary_output.bin
 Scene: assets/t2m1/VertexEdgeTests/test02.xml
 Integrator: Implicit Euler
@@ -67,44 +72,46 @@ Maximum Velocity Residual: 11.4964   Failed.
 Collisions Passed: No.
 Overall success: Failed.
 FOSSSim message: Saved residual to residual.txt.
-  </pre>
+      </pre>
 
-  <p>
-    Because the simulation and the test are both compiled C++
-    programs, this gives us instant feedback. It's easy
-    to imagine a CI server like travis (or the ambitious
-    <a href="http://nixos.org/hydra/">Hydra</a>, which I've
-    yet to figure out) compiling the simulation.
-  </p>
+      <p>
+          Because the simulation and the test are both compiled C++
+          programs, this gives us instant feedback. It's easy
+          to imagine a CI server like travis (or the ambitious
+          <a href="http://nixos.org/hydra/">Hydra</a>, which I've
+          yet to figure out) compiling the simulation.
+      </p>
 
-  <p>
-    Can we learn anything from this approach that's applicable or
-    helpful to testing Django applications, or web development in
-    general? Is there any work we're doing that would be simplified
-    by using a file to represent the results of our code?
-  </p>
+      <p>
+          Can we learn anything from this approach that's applicable or
+          helpful to testing Django applications, or web development in
+          general? Is there any work we're doing that would be simplified
+          by using a file to represent the results of our code?
+      </p>
 
-  <p>
-    Django applications usually have models connected to
-    a database, requiring the test scripts to instantiate a test
-    database. 
-  </p>
+      <p>
+          Django applications usually have models connected to
+          a database, requiring the test scripts to instantiate a test
+          database. 
+      </p>
+  </div>
+  </article>
 
   <footer>
-    <a href="../../" title="Back">&larr;</a>
+      <a href="../../" title="Back">&larr;</a>
   </footer>
 
   <div id="disqus_thread"></div>
   <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES * * */
-    var disqus_shortname = 'nnyby';
-    
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
   </script>
   <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 
