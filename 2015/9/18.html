@@ -8,11 +8,14 @@
   <link rel="stylesheet" href="../../journal.css" type="text/css" />
 </head>
 <body>
+    <article itemscope itemtype="http://schema.org/BlogPosting">
   <header>
-    <h1>A JavaScript antipattern</h1>
-    <time datetime="2015-09-18">Friday, September 18</time>
+    <h1 itemprop="name">A JavaScript antipattern</h1>
+    <time datetime="2015-09-18" itemprop="datePublished"
+          >Friday, September 18</time>
   </header>
 
+  <div itemprop="articleBody">
   <p>
     In JavaScript, you can get
     <a href="https://en.wikipedia.org/wiki/Class_%28computer_programming%29">class</a>-like
@@ -97,6 +100,8 @@
     needs to create a microformat, it can just define a
     <code>createMicroformat()</code> method.
   </p>
+</div>
+</article>
 
   <footer>
     <a href="../../">&larr;</a>

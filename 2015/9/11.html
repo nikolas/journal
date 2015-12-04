@@ -8,13 +8,16 @@
   <link rel="stylesheet" href="../../journal.css" type="text/css" />
 </head>
 <body>
+    <article itemscope itemtype="http://schema.org/BlogPosting">
   <header>
-    <h1>
+    <h1 itemprop="name">
       Promises in jQuery
     </h1>
-    <time datetime="2015-09-11">Friday, September 11</time>
+    <time datetime="2015-09-11" itemprop="datePublished"
+          >Friday, September 11</time>
   </header>
 
+  <div itemprop="articleBody">
   <p>
     There's a
     <a href="https://blog.domenic.me/youre-missing-the-point-of-promises/"
@@ -132,6 +135,8 @@
         self.initAfterTemplatesLoad();
       });
   </pre>
+  </div>
+    </article>
 
   <footer>
     <a href="../../">&larr;</a>

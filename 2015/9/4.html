@@ -8,13 +8,17 @@
   <link rel="stylesheet" href="../../journal.css" type="text/css" />
 </head>
 <body>
+    <article itemscope itemtype="http://schema.org/BlogPosting">
   <header>
-    <h1>
+    <h1 itemprop="name">
       Some thoughts on Backbone.js
     </h1>
-    <time datetime="2015-09-04">Friday, September 4</time>
+    <div style="display: none;" itemprop="author">Nik Nyby</div>
+    <time datetime="2015-09-04" itemprop="datePublished"
+          >Friday, September 4</time>
   </header>
 
+  <div itemprop="articleBody">
   <p>
     I've been working on
     <a href="http://history-lab.org/">history-lab.org</a>, which consists of
@@ -71,6 +75,8 @@
     Using global variables like that introduces complexity and makes it
     awkward to use a module system like requirejs.
   </p>
+  </div>
+  </article>
 
   <footer>
     <a href="../../">&larr;</a>

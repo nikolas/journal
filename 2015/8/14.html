@@ -8,13 +8,16 @@
   <link rel="stylesheet" href="../../journal.css" type="text/css" />
 </head>
 <body>
+    <article itemscope itemtype="http://schema.org/BlogPosting">
   <header>
-    <h1>
+    <h1 itemprop="name">
       RequireJS, jQuery, and Node.js
     </h1>
-    <time datetime="2015-08-14">Friday, August 14</time>
+    <time datetime="2015-08-14" itemprop="datePublished"
+          >Friday, August 14</time>
   </header>
 
+  <div itemprop="articleBody">
   <p>
     I'm working on some
     <a href="http://ccnmtldjango.readthedocs.org/en/latest/javascript_unit_testing.html"
@@ -58,6 +61,8 @@
     much since the test runner is working alright now, and I don't want it
     to become fragile or hard to understand.
   </p>
+</div>
+</article>
 
   <footer>
     <a href="../../">&larr;</a>
