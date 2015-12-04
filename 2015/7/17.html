@@ -8,11 +8,15 @@
   <link rel="stylesheet" href="../../journal.css" type="text/css" />
 </head>
 <body>
+    <article itemscope itemtype="http://schema.org/BlogPosting">
   <header>
-    <h1>A Mocha test runner for RequireJS</h1>
-    <time datetime="2015-07-17">Friday, July 17</time>
+    <h1 itemprop="name">A Mocha test runner for RequireJS</h1>
+    <div style="display: none;" itemprop="author">Nik Nyby</div>
+    <time datetime="2015-07-17" itemprop="datePublished"
+          >Friday, July 17</time>
   </header>
 
+  <div itemprop="articleBody">
   <p>
     It took me a while to set up our
     <a href="https://github.com/ccnmtl/ccnmtldjango">ccnmtldjango</a>
@@ -69,6 +73,8 @@ mocha.run(function(failures) {
 });
   </pre>
   &lt;<a href="https://github.com/ccnmtl/ccnmtldjango/blob/master/ccnmtldjango/template/media/js/tests/test-runner.js">ref</a>&gt;
+  </div>
+</article>
 
   <footer>
     <a href="../../">&larr;</a>
