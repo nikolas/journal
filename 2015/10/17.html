@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Creating a Django project template</title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">Creating a Django project template</h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div> 
+        <time datetime="2015-10-17" content="2015-10-17" itemprop="datePublished"
+	      >Saturday, October 17</time>
+    </header>
+
+    <div itemprop="articleBody">
+      <p>
+	Sometimes it's useful to customize the starting point for Django's
+	<code>startproject</code> command.
+	You can pass this command the <code>--template</code> option
+	demonstrated
+	<a href="https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-startproject">here</a>. A less obvious feature of this mechanism
+	is the <code>--name</code> option, which tells Django which
+	files in the project template should be rendered as templates.
+      </p>
+
+      <p>
+	There are project templates around that can be used in this way,
+	for example:
+	<a href="https://github.com/caktus/django-project-template"
+	   >django-project-template</a>.
+      </p>
+
+      <p>
+	This week I worked on a template for
+	<a href="http://mezzanine.jupo.org/">Mezzanine</a>. Right now
+	it requires the latest git version of Mezzanine, because of
+	a fix in how the <code>--name</code> option gets handled.
+	The template is
+	<a href="https://github.com/ccnmtl/ctlmezzanine">here</a>.
+	I was going to describe the process of putting it together
+	but, by looking at the template, it's self-explanatory.
+      </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Django 1.9 library changes
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Django 1.9 library changes
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2015-12-04" content="2015-12-04" itemprop="datePublished"
+          >Friday, December 4</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            It's interesting to figure out strange problems that come up due to
+            API changes. Consider this awkward code:
+        </p>
+
+<pre>
+import importlib
+
+try:
+    from django.template.backends.django import get_installed_libraries
+    from django.template.library import InvalidTemplateLibrary
+except ImportError:
+    from django.template.base import get_library, InvalidTemplateLibrary
+
+
+def load_tag_library(libname):
+    """Load a templatetag library on multiple Django versions.
+
+    Returns None if the library isn't loaded.
+    """
+    try:
+        try:
+            lib = get_installed_libraries()[libname]
+            lib = importlib.import_module(lib).register
+            return lib
+        except NameError:
+            lib = get_library(libname)
+            return lib
+    except (InvalidTemplateLibrary, KeyError):
+        return None
+</pre>
+
+        <p>
+            I added this to django-extensions' compat.py file to handle
+            the removal of
+            <code>django.template.base.get_library</code> in Django 1.9.
+            This function works but could be better. For example, it's
+            hard to see that the <code>KeyError</code> is being caught
+            from <code>get_installed_libraries()[libname]</code>. And what
+            if there was a legitimate <code>KeyError</code> from the
+            <code>except NameError</code> block? The exception would
+            get hidden and cause confusion for anyone trying to fix
+            the code.
+        </p>
+
+        <p>
+        </p>
+
+<pre>
+import django
+
+
+def load_tag_library(libname):
+    """Load a templatetag library on multiple Django versions.
+
+    Returns None if the library isn't loaded.
+    """
+    if django.VERSION < (1, 9):
+        from django.template.base import get_library, InvalidTemplateLibrary
+        try:
+            lib = get_library(libname)
+            return lib
+        except InvalidTemplateLibrary:
+            return None
+    else:
+        import importlib
+        from django.template.backends.django import get_installed_libraries
+        from django.template.library import InvalidTemplateLibrary
+        try:
+            lib = get_installed_libraries()[libname]
+            lib = importlib.import_module(lib).register
+            return lib
+        except (InvalidTemplateLibrary, KeyError):
+            return None
+</pre>
+
+        <p>
+            Is this code better? Who knows. At least it hides less
+            legitimate exceptions.
+        </p>
+        <!--
+             https://github.com/django-extensions/django-extensions/pull/772/files
+          -->
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

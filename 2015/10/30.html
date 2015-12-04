@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Making a SplitDurationWidget for Django
+	    </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Making a SplitDurationWidget for Django
+	    </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div> 
+        <time datetime="2015-10-30" content="2015-10-30" itemprop="datePublished"
+	      >Friday, October 30</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            Django's
+            <a href="https://docs.djangoproject.com/en/dev/ref/models/fields/#durationfield"
+            >DurationField</a> lets you store a Python timedelta object in the database.
+            It was introduced in Django 1.8, and doesn't yet have a user-friendly
+            way to input this data in a form. There's
+            <a href="https://docs.djangoproject.com/en/dev/ref/forms/fields/#durationfield"
+            >forms.DurationField</a>, which renders a
+            <code>&lt;input type="text"&gt;</code> that accepts any string
+            understood by
+            <a href="https://docs.djangoproject.com/en/dev/ref/utils/#django.utils.dateparse.parse_duration"
+            >parse_duration</a>.
+        </p>
+        <p>
+            These are my first attempts to make a re-usable
+            MultiValueField that lets users specify the
+            duration in days, hours, minutes, and seconds.
+        </p>
+        <pre>
+class SplitDurationWidget(forms.MultiWidget):
+    """
+    A Widget that splits duration input into four number input boxes.
+    """
+    def __init__(self, attrs=None):
+        widgets = (forms.NumberInput(attrs=attrs),
+                   forms.NumberInput(attrs=attrs),
+                   forms.NumberInput(attrs=attrs),
+                   forms.NumberInput(attrs=attrs))
+        super(SplitDurationWidget, self).__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if value:
+            d = value
+            if d:
+                hours = d.seconds // 3600
+                minutes = (d.seconds % 3600) // 60
+                seconds = d.seconds % 60
+                return [int(d.days), int(hours), int(minutes), int(seconds)]
+        return [0, 1, 0, 0]
+
+ class MultiValueDurationField(forms.MultiValueField):
+     widget = SplitDurationWidget
+
+     def __init__(self, *args, **kwargs):
+         fields = (
+             forms.IntegerField(),
+             forms.IntegerField(),
+             forms.IntegerField(),
+             forms.IntegerField(),
+         )
+         super(MultiValueDurationField, self).__init__(
+             fields=fields,
+             require_all_fields=True, *args, **kwargs)
+
+     def compress(self, data_list):
+         if len(data_list) == 4:
+             return timedelta(
+                 days=int(data_list[0]),
+                 hours=int(data_list[1]),
+                 minutes=int(data_list[2]),
+                 seconds=int(data_list[3]))
+         else:
+             return timedelta(0)
+        </pre>
+        <p>
+            And overrode the field type in the form:
+        </p>
+        <pre>
+ class ItemUpdateForm(ModelForm):
+
+     def __init__(self, *args, **kwargs):
+         super(ItemUpdateForm, self).__init__(*args, **kwargs)
+         self.fields['estimated_time'] = MultiValueDurationField()
+
+     class Meta:
+         model = Item
+        </pre>
+
+        <p>
+            The tests can be written using the same methods used
+            to test, for example, SplitDateTimeWidget in Django.
+        </p>
+
+        <p>
+            But then, maybe we should instead just use
+            <a href="https://github.com/thraxil/simpleduration">simpleduration</a>,
+            since users are already familiar with that format in other
+            parts of <a href="https://github.com/ccnmtl/dmt">dmt</a> like the
+            time tracker.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

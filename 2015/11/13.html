@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+	  Managing Common Code in a Multi-Browser Extension
+	</title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+	  Managing Common Code in a Multi-Browser Extension
+	</h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div> 
+        <time datetime="2015-11-13" content="2015-11-13" itemprop="datePublished"
+	      >Friday, November 13</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+	        <a href="https://github.com/chrisaljoudi/uBlock">uBlock</a> is
+            an ad-blocking browser extension that's compatible with Chrome,
+            Firefox, and Safari. The uBlock developers organize the entire
+            codebase in a single repository and are able to share common,
+            browser-independent logic between the three extensions in that
+            way.
+        </p>
+        <p>
+            Right now I'm working on porting
+            <a href="https://github.com/ccnmtl/mediathread-chrome"
+               >mediathread-chrome</a> to Firefox. The single repository
+            structure works for uBlock, but I'm going to try sketching
+            out the simplest way to do this with a separate repository
+            for each platform. My reasoning is that this is the
+            structure we already have in place, and I'm also thinking that
+            this way simplifies deployment. Each browser has its own
+            set of tools for developing extensions, and I'm worried they'd
+            get in eachother's way if everything's in one repository.
+        </p>
+        <p>
+            Firefox extensions are tested and packaged with Mozilla's
+            <a href="https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/jpm"
+               >jpm</a> tool, which is a node.js program influenced by npm.
+            It's possible to use node.js modules in Firefox extensions, in fact,
+            this is the preferred way of including third-party code since jpm
+            was introduced in early 2015.
+        </p>
+        <p>
+            Chrome extensions, on the other hand, have no special
+            relationship to node.js. Chrome doesn't provide an extension
+            development tool like Mozilla's jpm. Instead, everything
+            is handled in the browser. Coming up with a testing scheme
+            is left as an exercise for the developer, but debugging
+            is much more seamless: Just add a <code>debugger;</code>
+            breakpoint in your extension code, and Chrome behaves as
+            if it were JavaScript running on the page. We could use
+            npm to install third-party packages on a Chrome extension,
+            but I'm already using npm for testing purposes on 
+            <a href="https://github.com/ccnmtl/mediathread-chrome"
+               >mediathread-chrome</a>.
+        </p>
+        <p>
+            <a href="https://github.com/github-linker/core">github-linker-core</a>
+            is an example of an npm module that's compatible with Chrome
+            extensions, by using <a href="http://browserify.org/">browserify</a> as
+            part of the build process. So that's one way to approach the problem.
+        </p>
+        <p>
+            Another solution would be to use
+            <a href="http://bower.io/">Bower</a> as the package
+            manager, instead of npm.
+        </p>
+        <p>
+            Or we could archive our "core" library manually and distribute
+            the tarball, unpacking it when necessary like we do with
+            <a href="https://github.com/ccnmtl/mediathread/blob/master/bootstrap.py#L61"
+               >Mediathread's bookmarklet</a>. An even simpler way
+            would be to copy over common code to update it, making
+            sure to keep it separate from the browser-specific code.
+            This is the approach I'm going to take for now, since it's
+            the simplest and requires the least amount of configuration.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

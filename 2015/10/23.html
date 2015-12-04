@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+	  Converting a Firefox extension from cfx to jpm
+	</title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+	  Converting a Firefox extension from cfx to jpm
+	</h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div> 
+        <time datetime="2015-10-23" content="2015-10-23" itemprop="datePublished"
+	      >Friday, October 23</time>
+    </header>
+
+    <div itemprop="articleBody">
+      <p>
+	Since working on Mediathread's
+	<a href="https://github.com/ccnmtl/mediathread-chrome"
+	   >Chrome extension</a>, and soon a Safari extension, I'm
+	learning all about the extension-building tools provided for
+	different web browsers.
+	Last night I picked up on my effort to convert
+	<a href="https://github.com/nikolas/LibreJS">LibreJS</a>
+	from Mozilla's older Add-on SDK to their new but not quite stable
+	system, a node.js program called jpm, which replaced the python-based
+	Add-on SDK (aka <code>cfx</code>) at
+	the beginning of this year.
+    Mozilla's extension building tools can be a
+    <a href="http://omniref.com/blog/blog/2014/09/08/writing-extensions-for-firefox-is-barely-worth-the-trouble/"
+       >annoying to work with</a>. Mozilla also has automated and
+    manual extension approval procedures that you don't run into when
+    submitting extensions to the Chrome Web Store. All your extension
+    code is run through <a href="https://github.com/mozilla/amo-validator"
+                           >an automated validator</a> that looks at
+    all the dependencies in your extension's <code>node_modules/</code>,
+    which can cause annoying issues:
+    <a href="https://github.com/OverByThere/addon-pathfinder/issues/1"
+       >https://github.com/OverByThere/addon-pathfinder/issues/1</a>
+      </p>
+      <p>
+	See <a href="https://github.com/nikolas/LibreJS/tree/jpm">the jpm branch</a>
+	on LibreJS to get the gist of what I had to change. You have to change
+	all the absolute paths within your code to relative paths, for example:
+      </p>
+      <pre>
+-const nonTrivialCheckModule =
+    require("js_checker/nontrivial_checker");
++const nonTrivialCheckModule =
+    require("../lib/js_checker/nontrivial_checker");
+      </pre>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
