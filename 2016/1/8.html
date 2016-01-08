@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Reliable Selenium Testing in Python - a work in progress
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Reliable Selenium Testing in Python - a work in progress
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-01-08" itemprop="datePublished"
+          >Friday, January 8</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            Selenium tests are notoriously annoying and
+            unstable. There are just so many layers that affect the
+            state of the system when booting up the full application
+            and browser. In general, I try to make tests at the
+            lowest, simplest level possible.  If something can be
+            tested without loading any Django code, like a utility
+            function, test it independently. Or if something can be
+            tested on the model, test it there. Otherwise, make a view
+            test. At the final step of this outward spiral, you can
+            instantiate the entire application and automate a web
+            browser to emulate a user visiting the site, clicking
+            links and filling out form fields. We use Selenium to
+            automate web browsers for testing.
+        </p>
+        <p>
+            At this point, I do think Selenium-style tests are useful
+            and essential. We've made giant refactors and upgrades to
+            Mediathread's JavaScript code that would be tedious and
+            intimidating without the intricate suite of Lettuce tests
+            we have set up.
+        </p>
+        <p>
+            There's been some recent discussion on the problem of
+            Selenium-style testing.
+            <a href="https://www.lucidchart.com/techblog/2015/07/21/selenium-7-things-you-need-to-know-2/"
+               >Selenium: 7 Things You Need To Know</a> provides some
+            tips on what you can do to reduce flakiness and
+            streamline the process of writing Selenium tests.
+            Last November there was the Google Tech Talk
+            <a href="https://www.youtube.com/watch?v=hmk1h40shaE"
+               >Your Tests Aren't Flaky</a>, supporting the idea that
+            these "flaky" Selenium tests are really just symptoms of a
+            flaky application, and should be considered bugs.
+        </p>
+        <p>
+            In my experience, in general, flaky Selenium tests mean the tests
+            are flaky, not the application. But I appreciate the ideas
+            of the "Your Tests Aren't Flaky" talk, and in that spirit I've made
+            some attempts to fix a
+            <a href="https://travis-ci.org/ccnmtl/worth2/builds/81979378#L685"
+               >flaky test</a> in WORTH. My first step was to look at the tools
+            we were using with our behave/selenium setup for Django. I realized
+            <a href="https://pypi.python.org/pypi/splinter">splinter</a>'s role
+            was not essential: these programmatic browser commands could just
+            as well be called directly from Selenium. It was only adding
+            complexity to an already complex system. After refactoring behave
+            to use Selenium's API instead of splinter's, I just added a bunch
+            of extra-cautious code to WORTH's
+            <a href="https://github.com/ccnmtl/worth2/blob/master/features/steps/common.py"
+               >steps/common.py</a>. I was able to get this working
+            reliably (so far) without using any arbitrary calls to
+            <code>time.sleep()</code> after reading through the
+            <a href="http://selenium.googlecode.com/svn/trunk/docs/api/py/index.html"
+               >Selenium Python documentation</a>, and also some
+            <a href="http://selenium-python.readthedocs.org/"
+               >unofficial Selenium Python documentation</a> that turned
+            out to be really useful.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

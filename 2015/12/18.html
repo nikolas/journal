@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Working around Firefox's window.open() Same-origin policy with
+            port.emit()
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Working around Firefox's window.open() Same-origin policy with
+            port.emit()
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2015-12-18" itemprop="datePublished"
+          >Friday, December 18</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            Firefox's
+            <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy">Same-origin policy</a>
+            is an implementation of some standards from WHATWG that
+            is stricter about cross-origin windows and iframes than
+            Chrome and Safari. 
+        </p>
+        <blockquote>
+            When the two documents do not have the same origin, these
+            references provide very limited access to Window and
+            Location objects, as described in the next two sections.
+        </blockquote>
+        <p>
+            I ran into this functionality via a "permission denied"
+            error when calling <code>window.open()</code> in a
+            Firefox extension.
+            In <a href="https://github.com/ccnmtl/mediathread-firefox"
+                  >mediathread-firefox</a>, the content page's origin
+            could be, for example, <code>images.google.com</code> or
+            <code>en.wikipedia.org</code>. I wasn't clear about the
+            pop-up window's origin. According to the Same-origin
+            policy's documentation, my <code>about:blank</code>
+            pop-up window should inherit the parent window's origin.
+            However, according to someone on irc, this inheritance rule
+            only applies to iframes.
+        </p>
+        <blockquote>
+            <h4>Inherited origins</h4>
+            Content from about:blank, javascript: and data: URLs
+            inherits the origin from the document that loaded the URL,
+            since the URL itself does not give any information about
+            the origin.
+        </blockquote>
+        <p>
+            "Limited access to the Window object" described above
+            isn't sufficient to do what the extension was trying to do:
+            Add DOM elements to <code>window.document</code>.
+        </p>
+        <p>
+            I couldn't think of a way to get around this security
+            policy. Windows, origins, and CORS rules get muddled up
+            when running in a browser extension's content script.
+            Because I knew it was possible and permitted to do
+            this kind of thing from the main add-on code
+            (in mediathread-firefox, this is everything in the
+            <code>src/</code> directory, as opposed to
+            <code>data/</code>), I decided to see what was required
+            to make it work that way instead.
+        </p>
+        <p>
+            It's not straightforward, since we don't have the DOM
+            available on the add-on script side. But we can
+            communicate between the two threads with
+            <code>port.emit()</code> and <code>port.on()</code>.
+            See the diagram here:
+            <a href="https://developer.mozilla.org/en-US/Add-ons/SDK/Guides/Content_Scripts#Communicating_with_the_add-on"
+               >Content_Scripts#Communicating_with_the_add-on</a>.
+        </p>
+        <p>
+            The Add-on SDK has a few different modules to choose from
+            to open a pop-up style dialog box:
+            <a href="https://developer.mozilla.org/en-US/Add-ons/SDK/High-Level_APIs/windows">
+                windows</a>,
+            <a href="https://developer.mozilla.org/en-US/Add-ons/SDK/High-Level_APIs/panel">
+                panel</a>. I chose to use panel, since calling
+            <code>windows.open()</code> with this API opened a
+            full browser window with toolbars and scrollbars, and
+            I couldn't figure out how to hide them.
+        </p>
+        <p>
+            I'm transferring the HTML data that needs to be displayed
+            in the pop-up with the <code>collect</code> event
+            from the content script to the add-on script. The add-on
+            script then opens a Panel that contains a content script.
+            I use the <code>form-payload</code> event to transfer
+            the form's HTML from the add-on script to the Panel's
+            content script. It's confusing! On the add-on script
+            side:
+        </p>
+<pre>
+var worker = tabs.activeTab.attach({
+    contentScriptFile: [
+        self.data.url('./lib/jquery-2.1.4.min.js'),
+        self.data.url('./lib/URI.js'),
+        self.data.url('./src/collect-panel.js'),
+        self.data.url('./src/common/settings.js'),
+        self.data.url('./src/common/host-handler.js'),
+        self.data.url('./src/common/asset-handler.js'),
+        self.data.url('./src/common/collect.js'),
+        self.data.url('./src/init.js')
+    ],
+    contentScriptWhen: 'ready'
+});
+
+worker.port.on('collect', function(payload) {
+    var panel = Panel({
+        width: 400,
+        height: 400,
+        contentURL: self.data.url('./collect-popup/index.html'),
+        contentStyleFile: self.data.url('./collect-popup/style.css'),
+        contentScriptFile: [
+            self.data.url('./lib/jquery-2.1.4.min.js'),
+            self.data.url('./collect-popup/popup.js')
+        ]
+    });
+    panel.port.on('collect-cancel', function() {
+        panel.hide();
+    });
+    panel.port.on('collect-submit', function() {
+        // Tell the main content script about the submission so
+        // it can display a notice.
+        worker.port.emit('collect-submit');
+        panel.hide();
+    });
+
+    panel.show();
+    panel.port.emit('form-payload', payload.form);
+});
+</pre>
+        <p>
+            The pop-up Panel's content script:
+        </p>
+<pre>
+$(document).ready(function() {
+    self.port.on('form-payload', function(form) {
+        var $form = $(form);
+        $form.find('input.cont').remove();
+        $form.find('input.analyze').remove();
+        $form.append(
+            '&lt;input type="hidden" value="cont" name="button"&gt;');
+        $form.append('<button id="submit-input" class="btn-primary" ' +
+            'type="submit">Save</button>');
+        $form.append('<button id="submit-cancel" class="btn-primary" ' +
+            'type="button">Cancel</button>');
+        $form.append(
+            '&lt;div class="help-text"&gt;' +
+            'Clicking "Save" will add this item to your ' +
+            'Mediathread collection and return you to ' +
+            'collecting.' +
+            '&lt;/div&gt;');
+
+        $('#bucket-wrap').append($form);
+
+        $('#submit-cancel').click(function() {
+            self.port.emit('collect-cancel');
+        });
+
+        $('form').on('submit', function() {
+            self.port.emit('collect-submit');
+        });
+    });
+});
+</pre>
+
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
