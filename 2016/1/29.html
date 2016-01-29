@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Using Django's FilteredSelectMultiple widget
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Using Django's FilteredSelectMultiple widget
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-01-29" itemprop="datePublished"
+          >Friday, January 29</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            In Django's admin views there's a form widget that's
+            useful for adding, for example, many groups or permissions
+            to a user in one action. There isn't much official
+            documentation on this, but it's possible to use it in your
+            own forms.
+        </p>
+        <p>
+            If you have a model with a ManyToManyField, you can
+            set up FilteredSelectMultiple using a ModelForm.
+        </p>
+        <p>
+            In <a href="https://github.com/ccnmtl/dmt">DMT</a>, where I was
+            using this, we had a Project that was tied to users (personnel)
+            indirectly through a WorksOn object. The Project class already
+            had a <code>all_users_not_in_project()</code> method for looking
+            up users that could be added to this project, and it returns
+            a list, not a QuerySet.
+        </p>
+        <p>
+            So, just to illustrate how I did this:
+        </p>
+<pre>
+from django.contrib.admin.widgets import FilteredSelectMultiple
+
+
+class ProjectPersonnelForm(forms.Form):
+    class Media:
+        # Django also includes a few javascript files necessary
+        # for the operation of this form element. You need to
+        # include &lt;script src="/admin/jsi18n"&gt;&lt;/script&gt;
+        # in the template.
+        css = {
+            'all': ('admin/css/widgets.css',)
+        }
+
+    def __init__(self, *args, **kwargs):
+        pid = kwargs.pop('pid')
+
+        r = super(ProjectPersonnelForm, self).__init__(
+            *args, **kwargs)
+
+        p = Project.objects.get(pk=pid)
+        qs = UserProfile.objects.filter(
+            pk__in=[u.pk for u in p.all_users_not_in_project()]
+        ).order_by(
+            Lower('fullname')
+        ).order_by(
+            Lower('username'))
+
+        self.fields['personnel'] = \
+            forms.ModelMultipleChoiceField(
+                queryset=qs,
+                widget=FilteredSelectMultiple(
+                    'Personnel', is_stacked=False),
+                label='')
+
+        return r
+</pre>
+    <p>
+        Definitely a little messy. Oh well. At least I have some tests:
+    </p>
+<pre>
+from django.test import TestCase
+from dmt.main.forms import ProjectPersonnelForm
+from dmt.main.tests.factories import (
+    UserProfileFactory, ProjectFactory
+)
+
+
+class ProjectPersonnelFormTest(TestCase):
+    def test_init(self):
+        p = ProjectFactory()
+        ProjectPersonnelForm(pid=p.pid)
+
+    def test_personnel_present(self):
+        u1 = UserProfileFactory()
+        u2 = UserProfileFactory()
+        u3 = UserProfileFactory()
+        p = ProjectFactory()
+        p.add_personnel(u3)
+        f = ProjectPersonnelForm(pid=p.pid)
+
+        personnel_in_form = \
+            f.fields.get('personnel').queryset.all()
+        self.assertTrue(u1 in personnel_in_form)
+        self.assertTrue(u2 in personnel_in_form)
+        self.assertFalse(u3 in personnel_in_form)
+        self.assertTrue(
+            p.caretaker_user.userprofile in personnel_in_form)
+</pre>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
