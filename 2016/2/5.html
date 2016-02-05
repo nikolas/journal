@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            A Daterange Mixin for Django Views
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-02-05" itemprop="datePublished"
+          >Friday, February 5</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            This week I connected the bootstrap-datepicker JavaScript
+            library's
+            <a href="https://bootstrap-datepicker.readthedocs.org/en/latest/markup.html#date-range"
+               >input-daterange</a> widget to PMT using a mixin, so it can
+            easily be made to work with any view. The complete changes are
+            in <a href="https://github.com/ccnmtl/dmt/pull/699">dmt#699</a>.
+        </p>
+        <p>
+            As shown in the pull request, we already had the RangeOffsetMixin
+            which allows users to specify the reported days using "range"
+            and "offset" parameters. This worked and did everything we needed
+            it to do. But it wasn't very intuitive: If I want a staff
+            report for the month of December 2015, I find the right parameters
+            through a procedure of trial and error (let's see..
+            "range" will be 31 because I think December has 31
+            days, and "offset" will be around 35 + 31 because right
+            now it's February 5th, and December 1st was a little over two
+            months ago). Because we think in terms of calendar dates, not
+            durations and offsets of days, Maurice suggested we allow the
+            users to pick this range using a datepicker like we use
+            to pick an action item's due date. I thought this was a great
+            idea that we should have come up with sooner.
+        </p>
+        <p>
+            Fortunately, the same JavaScript library we're using to pick due
+            dates has a "daterange" mode:
+            <a href="https://bootstrap-datepicker.readthedocs.org/en/latest/markup.html#date-range"
+               >input-daterange</a>. After changing the interface in PMT's
+            reports templates, I just needed to connect the view to look at
+            these new form parameters on submit.
+        </p>
+        <p>
+            I've adapted the old <code>RangeOffsetMixin</code> into a
+            <code>DaterangeMixin</code>. <code>RangeOffsetMixin</code>
+            calculates dates using a <code>calc_interval()</code> method,
+            which I assumed was no longer necessary: the user is now
+            picking absolute, not relative, points of time, simplifying
+            the server's date calculation job. This is a nice situation
+            where a more user-friendly interface also lends to simpler
+            code.
+        </p>
+        <p>
+            It turns out that there is still some calculation to do
+            that's worth separating from <code>get_params()</code>.
+            I still need to combine
+            <code>interval_start</code> and
+            <code>interval_end</code> dates with
+            <code>datetime.min.time()</code> and
+            <code>datetime.max.time()</code> respectively for the range
+            to be accurate. The results of these combinations are
+            timezone-naive, so I then need to convert them to
+            timezone-aware dates as we were doing before.
+        </p>
+<pre>
+class DaterangeMixin(object):
+    """A mixin for views that use daterange-datepicker.
+    This is meant to be attached to a View. The mixin
+    calculates dates using two keyword arguments in the
+    GET request:
+    - interval_start
+    - interval_end
+    """
+
+    interval_start = None
+    interval_end = None
+    _today = None
+
+    def today(self):
+        if not self._today:
+            self._today = date.today()
+        return self._today
+
+    def calc_interval(self):
+        # Calculate from the beginning of the first day
+        # in the range to the end of the last day.
+        naive_start = datetime.combine(
+            self.interval_start, datetime.min.time())
+        naive_end = datetime.combine(
+            self.interval_end, datetime.max.time())
+
+        # Convert to TZ-aware, based on the current timezone.
+        aware_start = pytz.timezone(
+            settings.TIME_ZONE
+        ).localize(
+            naive_start, is_dst=None)
+        aware_end = pytz.timezone(settings.TIME_ZONE).localize(
+            naive_end, is_dst=None)
+
+        self.interval_start = aware_start
+        self.interval_end = aware_end
+
+    def get_params(self):
+        """Update the interval based on request params."""
+
+        self.interval_start = self.request.GET.get(
+            'interval_start', None)
+        self.interval_end = self.request.GET.get(
+            'interval_end', None)
+
+        try:
+            self.interval_start = parse_date(
+                self.interval_start)
+        except TypeError:
+            pass
+        try:
+            self.interval_end = parse_date(self.interval_end)
+        except TypeError:
+            pass
+
+        if not self.interval_start:
+            self.interval_start = self.today() - \
+                relativedelta(months=1)
+        if not self.interval_end:
+            self.interval_end = self.today()
+
+        self.calc_interval()
+
+    def get_context_data(self, *args, **kwargs):
+        self.get_params()
+        context = super(DaterangeMixin, self).get_context_data(
+            *args, **kwargs)
+        context.update({
+            'interval_start': self.interval_start,
+            'interval_end': self.interval_end,
+        })
+        return context
+</pre>
+        <p>
+            So the code isn't as simple as I hoped, but I think it can be
+            improved. I'm going through extra, possibly redundant, steps to
+            make sure <code>interval_start</code> or
+            <code>interval_end</code> never fall back to something that the
+            user might not expect: an example of complicated code actually
+            yielding a more user-friendly experience.
+        </p>
+        <p>
+            <a href="http://www.columbia.edu/~njn2118/journal/2016/1/8.html"
+               >I mentioned before</a> that complicated code isn't as
+            satisfying to end up with as brief, clear code. I think that's
+            because as more happens in our own code, a few things come along
+            with that. The room for error increases, and the amount of code
+            that you need to read, understand, and maintain increases.
+        </p>
+        <p>
+            I think the relationship between code and interface is interesting
+            when I'm reminded that code has its own interfaces, and is itself
+            an interface to our computers. Is "simplicity" of Django code
+            less important than I think it is? After all, this is an
+            arbitrarily opinionated web framework built on Python and its
+            arbitrarily opinionated standard libraries. Well that's the open
+            question of this post and in the meantime we have
+            <a href="https://pypi.python.org/pypi/mccabe">mccabe</a> to keep
+            our code complexity in check.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
