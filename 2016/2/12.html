@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Reverse engineering GitHub's markdown toolbar
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Reverse engineering GitHub's markdown toolbar
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-02-12" itemprop="datePublished"
+          >Friday, February 12</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            A few weeks ago GitHub 
+            <a href="https://github.com/blog/2097-improved-commenting-with-markdown"
+               >introduced</a> a markdown toolbar to their textarea interface
+            in pretty much the style I've been wanting to add to our
+            <a href="https://github.com/ccnmtl/dmt">Project Management Tool</a>
+            for a while. I had been putting off this task because I didn't
+            want to try and solve what I saw as a complicated problem
+            myself, when I knew other people were working on in. I was waiting
+            for the perfect "Markdown Toolbar" library to present itself.
+        </p>
+        <p>
+            There's been lots of activity in the past few years in this space
+            of creating "smart" WYSIWYG editing interfaces. Basically, web
+            developers who like flexible text-based formats like Markdown have
+            their own take on the aging ideas of CKEditor and TinyMCE (which in
+            turn drew inspiration from word processing software like Microsoft
+            Word).
+            In fact, there's now even markdown-compatible interfaces to these
+            WYSIWYG editors, for example:
+            <a href="http://ckeditor.com/addon/markdown"
+               >http://ckeditor.com/addon/markdown</a>.
+            But there's plenty of fresh starts as well.
+            My friends at <a href="http://www.201-created.com/">201-created</a>
+            put together the well thought-out
+            <a href="https://bustlelabs.github.io/mobiledoc-kit/demo/"
+               >Mobiledoc-kit</a>.
+        </p>
+        <p>
+            Since working on the
+            <a href="https://pypi.python.org/pypi/CommonMark"
+               >CommonMark python library</a>, I've learned the value and
+            ease of developing against a well-defined test specification
+            when dealing with text i/o. There's really no fundamental
+            knowledge required: although I know the terms, I couldn't tell
+            you the difference between parsing "top-down", "bottom-up",
+            "recursive descent", etc.
+        </p>
+        <p>
+            I've always appreciated the ideals of reverse engineering,
+            "black box" design. And to
+            me, it sort of takes the boring parts out of developing
+            something: project planning and writing specifications. If you
+            have well-defined inputs and outputs, all you're left with is the
+            fun part of writing the code. Now I understand why there's so many
+            SNES emulators out there.
+        </p>
+        <p>
+            The first step is copy-and-paste the DOM elements:
+            <a href="https://github.com/ccnmtl/dmt/blob/markdown-toolbar/dmt/templates/main/markdown_toolbar.html"
+               >markdown_toolbar.html</a>.
+            Looking at the HTML gave me some intriguing clues into how this works:
+            The buttons use the
+            <code>data-prefix</code>, <code>data-suffix</code>,
+            <code>data-block-prefix</code>, and <code>data-block-suffix</code>
+            variables to define what sort of text is added around the cursor.
+            With this piece of info, I put the heart of this re-implementation
+            in 
+            <a href="https://github.com/ccnmtl/dmt/blob/markdown-toolbar/media/js/src/utils/markdown_toolbar_controller.js"
+               >markdown_toolbar_controller.js</a> using the unit tests at
+            <a href="https://github.com/ccnmtl/dmt/blob/markdown-toolbar/media/js/tests/unit/utils/markdown_toolbar_controller.spec.js"
+               >markdown_toolbar.spec.js</a>.
+
+            The controller is connected to the DOM with
+            <a href="https://github.com/ccnmtl/dmt/blob/markdown-toolbar/media/js/src/utils/markdown_toolbar.js"
+               >markdown_toolbar.js</a>.
+        </p>
+        <p>
+            The code now works for basic use cases. It doesn't behave in the
+            exact same way as GitHub's toolbar yet, and there are minor bugs.
+            But the path ahead is straightforward: I just need to add more
+            unit tests (with use cases taken from GitHub's toolbar), and I
+            need to expand the breadth of my unit testing. For example,
+            there are parts of <code>markdown_toolbar.js</code> that should
+            be tested,
+            like the <code>lastHotkey</code> and <code>lastText</code>
+            functionality that records what happens when you click the same
+            button twice.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
