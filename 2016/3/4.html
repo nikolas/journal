@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Lessons from Functional Programming
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-03-04" itemprop="datePublished"
+          >Friday, March 4</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            I was working on a website scraper the other day and decided
+            to write it in Haskell to re-familiarize myself with the
+            language, and to learn about the http and html-related
+            libraries available for Haskell. I have some things to
+            work out with my code (right now, it hangs when loading
+            the URL), but through this project I was reminded of
+            some of the things that went through my head when I last
+            used Haskell 6 years ago.
+        </p>
+        <p>
+            My favorite thing about Haskell is the idea of being
+            completely clear and explicit about the type of data
+            you're passing throughout the program. To
+            give an example about what I'm talking about, here's
+            a function that takes a list of characters and returns
+            the first one:
+        </p>
+<pre>
+first :: [Char] -> Char
+first s = s !! 0
+</pre>
+        <p>
+            This function only ever accepts a list of Chars, and will only
+            ever return a Char. Without including the first line of this
+            function, the compiler infers a more general type for this
+            function: <code>[a] -> a</code>. This function type uses the
+            type variable <code>a</code> to say it takes a list of something,
+            and returns a single instance of that same something.
+        </p>
+        <p>
+            Dynamically typed languages like Python and JavaScript don't
+            have these features built in to the language, but you can
+            still take advantage of some of the benefits of writing
+            clearly typed code. Once in a while I
+            run into a Python or Javascript function that isn't
+            obvious about what it accepts and returns. By adding some
+            comments at the top of the function to document this info,
+            in a similar style to Haskell's explicit typing mechanism,
+            the function becomes more understandable to readers. Type
+            errors become more obvious. For example,
+            If I read that this Python function returns a string, then
+            see a code path where it's possible for the function to
+            finish without returning anything at all, I can fix that
+            problem.
+        </p>
+        <p>
+            Through that example I've alluded to a specific aim of
+            functional programming: functions always return a value.
+            By organizing your code as a network of
+            stateless functions that each return a well-defined and
+            predictable type of value, you can compose a reliable
+            program. That's another idea from Haskell that can be
+            taken advantage of in more flexible, imperative languages
+            like Python and JavaScript. Imperative languages let you
+            alter state and return different types of values via
+            different code paths. It's often necessary to alter
+            state in object-oriented code, but I try to keep the
+            functional paradigm in mind when writing this kind of
+            code, and at least be consistent about the return type.
+        </p>
+        <p>
+            In 2010, I stopped programming in Haskell and learned Ruby
+            on Rails because that was the easiest way to get a job.
+            So the Haskell community is small and not focused on web
+            development. But there's a few other things that keep me
+            from programming in Haskell on a regular basis. Its
+            strict type system is both good and bad. Going back to
+            my web scraper, here's a ghci session that displays the
+            type of a Haskell library's <code>fromUrl</code> function,
+            which takes a url and returns an HTML document. The
+            <code>::</code> operator can be read as "is of the type".
+        </p>
+        <pre>
+$ ghci
+Prelude> import Text.HandsomeSoup
+Prelude Text.HandsomeSoup> :t fromUrl
+fromUrl
+  :: String
+     -> Text.XML.HXT.Arrow.XmlState.TypeDefs.IOSArrow
+          b (Data.Tree.NTree.TypeDefs.NTree Text.XML.HXT.DOM.TypeDefs.XNode)
+        </pre>
+        <p>
+            Now we can see this function takes a String and returns something
+            else. The string part makes sense - a string is how anyone would
+            represent a URL. But what about the crazy return type? Why isn't
+            this function type something  simple like
+            <code>String -> XmlDocument</code>?
+        </p>
+        <p>
+            That's the secret of Haskell. When you think about it, the
+            <code>fromUrl</code> function needs to do some I/O work.
+            Communication with the outside world isn't as predictable
+            as data that's already in the Haskell program. Haskell has
+            dealt with this through some complicated math, ultimately
+            coming up with the "Monad" type.
+            For details on input/output in Haskell, see:
+            <a href="https://www.haskell.org/tutorial/io.html"
+               >https://www.haskell.org/tutorial/io.html</a>.
+        </p>
+        <p>
+            In college I was lucky to have professors
+            teach me about functional programming, specifically in Haskell.
+            So I learned about monads, and I've heard that an
+            <a href="https://www.haskell.org/arrows/">Arrow</a> is a type of
+            monad. But I still can't really wrap my head around it.
+            So that's as far as I can get off the top of my head into
+            understanding the return type of <code>fromUrl</code>.
+        </p>
+        <p>
+            And whether you really understand this return type or not,
+            you have to admit that it's still not obvious.
+            By writing code that passes around complicated types,
+            you create a complex program that takes up a lot of mental
+            space.
+        </p>
+        <p>
+            So, that's been my take on Haskell in my years of not using
+            it. There's lots of good things to learn by writing
+            code in a functional language. I assume that we can find
+            useful ideas in other programming paradigms as well, such
+            as logic programming in Prolog. That's more difficult,
+            though. In my experience Prolog is way more different from
+            imperative programming than Haskell.
+        </p>
+        <p>
+            We can also keep in mind that computers are
+            procedural underneath it all, at the machine code level. In
+            addition, think about the amazing complexity that the Linux
+            kernel developers are able to manage through procedural C
+            code. So in the future we may see functional or some other
+            kind of programming become the norm, as programming
+            languages themselves were invented as an abstraction of
+            machine code. But who knows. We do think procedurally,
+            and it's just second nature for instructions to come
+            one after another, in contrast to the mathematical
+            style of a function as a definition from one domain to another.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

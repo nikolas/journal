@@ -6,15 +6,15 @@
     ) {
         var selectedText = text.substr(selectionStart, selectionEnd);
         if (selectedText.match(/\n/) &&
-            d['block-prefix'] &&
-            d['block-suffix']
+            d['blockPrefix'] &&
+            d['blockSuffix']
            ) {
-            if (d['block-prefix']) {
+            if (d['blockPrefix']) {
                 text = this.renderBlockPrefix(
                     selectionStart, selectionEnd, d, text);
             }
 
-            if (d['block-suffix']) {
+            if (d['blockSuffix']) {
                 text = this.renderBlockSuffix(
                     selectionStart, selectionEnd, this.prefixLength,
                     d, text);
@@ -69,9 +69,9 @@
     MarkdownToolbarController.prototype.renderBlockPrefix = function(
         selectionStart, selectionEnd, d, text
     ) {
-        this.prefixLength = d['block-prefix'].length + 1;
+        this.prefixLength = d['blockPrefix'].length + 1;
         var s = text.substr(0, selectionStart);
-        s += d['block-prefix'] + '\n';
+        s += d['blockPrefix'] + '\n';
         s += text.substr(selectionStart, text.length);
         return s;
     };
@@ -81,7 +81,7 @@
     ) {
         selectionEnd += blockPrefixLength + 1;
         var s = text.substr(0, selectionEnd);
-        s += '\n' + d['block-suffix'];
+        s += '\n' + d['blockSuffix'];
         s += text.substr(selectionEnd, text.length);
         return s;
     };
