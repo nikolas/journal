@@ -113,10 +113,14 @@ fromUrl
         </p>
         <p>
             That's the secret of Haskell. When you think about it, the
-            <code>fromUrl</code> function needs to do some I/O work.
-            Communication with the outside world isn't as predictable
-            as data that's already in the Haskell program. Haskell has
-            dealt with this through some complicated math, ultimately
+            <code>fromUrl</code> function needs to do some I/O work,
+            changing the state of the system in this process.
+            Invoking side effects (i.e. doing I/O work) goes against
+            the ideas that Haskell is based on. In fact, in Haskell
+            terms you'll hear of code that has side effects described
+            with the derogatory word "impure".
+            Haskell has dealt with this (making the impure code pure again)
+            through some complicated math, ultimately
             coming up with the "Monad" type.
             For details on input/output in Haskell, see:
             <a href="https://www.haskell.org/tutorial/io.html"
