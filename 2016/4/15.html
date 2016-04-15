@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Using js-emoji in Django
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Using js-emoji in Django
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-04-15" itemprop="datePublished"
+          >Friday, April 15</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            This is just a short post on how to use
+            <a href="https://github.com/iamcal/js-emoji">js-emoji</a>
+            in Django.
+        </p>
+        <p>
+            <a href="https://github.com/ccnmtl/dmt">PMT</a> has had
+            emoji support for a while through
+            <a href="https://github.com/gaqzi/django-emoji/">django-emoji</a>.
+            No one ever uses it though, because users have no idea that their
+            comments go through a filter that renders text like
+            <code>:tomato:</code> into an image.
+        </p>
+        <p>
+            Sites like GitHub display a dropdown menu of emoji "suggestions"
+            as soon as you type a colon into a comment box. I haven't
+            implemented the js-suggester behavior yet, but we're one step
+            closer now that the markdown previews in javascript are going
+            through an emoji filter.
+        </p>
+        <p>
+            See where I've added <code>emoji</code> code in
+             <a href="https://github.com/ccnmtl/dmt/blob/master/media/js/src/utils/markdown_preview.js"
+               >markdown_preview.js</a>.
+        </p>
+        <p>
+            One thing to note is that js-emoji uses emoji images from
+            <a href="https://github.com/iamcal/emoji-data">emoji-data</a>.
+            Initially, I had included the img-apple-64 and img-apple-160
+            directories in our django application, which comprise of over
+            100MB and over 3000 separate image files. This caused a timeout
+            problem in our deployment process, even after I manually uploaded
+            these files to S3 where the assets are stored. Fortunately,
+            js-emoji allows you to instead specify an emoji "sheet" using
+            the <code>use_sheet</code> option. I removed the 3000 images and
+            I'm now using the apple sheets from emoji-data.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

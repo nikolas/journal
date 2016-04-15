@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Using pipdeptree in a virtualenv
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Using pipdeptree in a virtualenv
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-03-24" itemprop="datePublished"
+          >Thursday, March 24</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            Each of our Django projects at the CTL has a
+            <code>requirements.txt</code>, which we use to download
+            dependencies with pip using the <code>--no-deps</code> flag.
+            We need to explicitly list each dependency in
+            <code>requirements.txt</code>, otherwise we run into runtime
+            errors.
+        </p>
+        <p>
+            Like piprot,
+            <a href="https://github.com/naiquevin/pipdeptree">pipdeptree</a> is
+            a nice pip utility for getting some info around the
+            <code>requirements.txt</code> file. Unlike piprot, it's not
+            as simple to use. You can't do something like
+            <code>piprot -o requirements.txt</code>, where the
+            <code>piprot</code> I'm referring to here may or may not be
+            in the same virtualenv as the Django project.
+        </p>
+        <p>
+            <code>pipdeptree</code> needs to be installed in the same
+            virtualenv, and needs to be called in a slightly different way,
+            so I thought it was worth documenting here.
+<pre>
+$ virtualenv ve
+$ ./ve/bin/pip install -r requirements.txt
+$ ./ve/bin/pip install pipdeptree
+$ ./ve/bin/python -m pipdeptree
+--------------------------------------------
+wsgiref==0.1.2
+argparse==1.2.1
+ipdb==0.9.0
+  - setuptools
+  - ipython [required: >=0.10, installed: 4.1.1]
+    - traitlets [installed: 4.0.0]
+  ...
+</pre>
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
