@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            A module import problem in commonmark.py
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            A module import problem in commonmark.py
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-04-29" itemprop="datePublished"
+          >Friday, April 29</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            I've been working on porting the changes from version 0.25 of
+            <a href="https://github.com/jgm/commonmark.js">commonmark.js</a>
+            to Python. 0.25 introduces an abstract renderer
+            class inherited by the HtmlRenderer. These new classes are in
+            <code>render/html.js</code> and <code>render/renderer.js</code>.
+            I'm trying to keep the Python code as similar to the JavaScript
+            code as possible for maintainability, and I ran into some
+            exasperating problems with my new <code>render/html.py</code>
+            and <code>render/renderer.py</code> files.
+        </p>
+        <p>
+            CommonMark-py has a custom test runner called
+            <code>run_spec_tests.py</code> that hooks up to
+            commonmark's implementation-independent <code>spec.txt</code>
+            file. Here's what the beginning of my debugging process was
+            like:
+        </p>
+<pre>
+$ ./venv/bin/python setup.py test
+running test
+Traceback (most recent call last):
+  File "CommonMark/tests/run_spec_tests.py", line 10, in <module>
+    from CommonMark.render.html import HtmlRenderer
+ImportError: No module named 'CommonMark.render'            
+</pre>
+        <p>
+            So, I've seen this error in the past, and it's meant that
+            <code>render/__init__.py</code> doesn't exist.
+            That's the first thing I checked, but it was already there
+            so that didn't fix it.
+        </p>
+        <p>
+            There's a bunch of strangeness around debugging this problem.
+            For example, I can import <code>CommonMark.render</code> in
+            the Python shell, and also the actual class I need to
+            get at from the tests:
+        </p>
+<pre>
+$ ./venv/bin/python setup.py install
+running install
+  ... 
+
+$ ./venv/bin/python
+Python 3.5.1+ (default, Mar 30 2016, 22:46:26) 
+[GCC 5.3.1 20160330] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import CommonMark.render
+>>> 
+>>> from CommonMark.render.html import HtmlRenderer
+>>> 
+</pre>
+        <p>
+            If I put an ipdb breakpoint before the import statement,
+            I can also import <code>CommonMark.render</code>. But if I try
+            this in a plain pdb breakpoint, I do get the error.
+        </p>
+        <p>
+            I've been debugging this with Python 3.5 but the library's also
+            compatible with Python 2.7, and I get the same error with Python
+            2.7. Here's the branch I'm working on:
+            <a href="https://github.com/rtfd/CommonMark-py/commits/spec-0.25"
+               >https://github.com/rtfd/CommonMark-py/commits/spec-0.25</a>
+            I guess I should really open a StackOverflow question, since I
+            haven't solved the problem yet.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
