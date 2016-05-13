@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            A Custom DOM Element Creator
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            A Custom DOM Element Creator
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-05-13" itemprop="datePublished"
+          >Friday, May 13</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+        </p>
+<script>
+function(doc, tag, className, style, children) {
+        // we use this to be even more careful than jquery for contexts
+        // like doc.contentType='video/m4v' in firefox
+        var setStyle = function(e, style) {
+            //BROKEN IN IE: http://www.peterbe.com/plog/setAttribute-style-IE
+            var css = style.split(';');
+            var bToUpperCase = function(a, b) {
+                return b.toUpperCase();
+            };
+            for (var i = 0; i < css.length; i++) {
+                var kv = css[i].split(':');
+                if (kv[0] && kv.length === 2) {
+                    e.style[
+                        kv[0].replace(/-([a-z])/, bToUpperCase)
+                    ] = kv[1];
+                }
+            }
+        };
+        var t = doc.createElement(tag);
+        t.setAttribute('class', className);
+        if (typeof style === 'string') {
+            t.setAttribute('style', style);
+            setStyle(t, style);
+        } else {
+            for (var a in style) {
+                t.setAttribute(a, style[a]);
+                if (style[a] === null) {
+                    t.removeAttribute(a);
+                }
+                if (a === 'style') {
+                    setStyle(t, style[a]);
+                }
+            }
+        }
+        if (children) {
+            for (var i = 0; i < children.length; i++) {
+                var c = children[i];
+                if (typeof c === 'string') {
+                    t.appendChild(doc.createTextNode(c));
+                } else {
+                    t.appendChild(c);
+                }
+            }
+        }
+        return t;
+    },
+</script>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
