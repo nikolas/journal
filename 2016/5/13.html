@@ -23,55 +23,63 @@
 
     <div itemprop="articleBody">
         <p>
+            I'm just posting some code I found interesting, in our
+            Mediathread extension library:
+            <a href="https://github.com/ccnmtl/mediathread-collect/blob/master/src/collect.js#L292"
+            >collect.js</a>
         </p>
-<script>
-function(doc, tag, className, style, children) {
-        // we use this to be even more careful than jquery for contexts
-        // like doc.contentType='video/m4v' in firefox
-        var setStyle = function(e, style) {
-            //BROKEN IN IE: http://www.peterbe.com/plog/setAttribute-style-IE
-            var css = style.split(';');
-            var bToUpperCase = function(a, b) {
-                return b.toUpperCase();
-            };
-            for (var i = 0; i < css.length; i++) {
-                var kv = css[i].split(':');
-                if (kv[0] && kv.length === 2) {
-                    e.style[
-                        kv[0].replace(/-([a-z])/, bToUpperCase)
-                    ] = kv[1];
-                }
-            }
+        <p>
+            I'm actually going to remove this function and just create
+            the DOM elements with jQuery instead.
+        </p>
+<pre>
+function elt(doc, tag, className, style, children) {
+    // we use this to be even more careful than jquery for contexts
+    // like doc.contentType='video/m4v' in firefox
+    var setStyle = function(e, style) {
+        //BROKEN IN IE: http://www.peterbe.com/plog/setAttribute-style-IE
+        var css = style.split(';');
+        var bToUpperCase = function(a, b) {
+            return b.toUpperCase();
         };
-        var t = doc.createElement(tag);
-        t.setAttribute('class', className);
-        if (typeof style === 'string') {
-            t.setAttribute('style', style);
-            setStyle(t, style);
-        } else {
-            for (var a in style) {
-                t.setAttribute(a, style[a]);
-                if (style[a] === null) {
-                    t.removeAttribute(a);
-                }
-                if (a === 'style') {
-                    setStyle(t, style[a]);
-                }
+        for (var i = 0; i < css.length; i++) {
+            var kv = css[i].split(':');
+            if (kv[0] && kv.length === 2) {
+                e.style[
+                    kv[0].replace(/-([a-z])/, bToUpperCase)
+                ] = kv[1];
             }
         }
-        if (children) {
-            for (var i = 0; i < children.length; i++) {
-                var c = children[i];
-                if (typeof c === 'string') {
-                    t.appendChild(doc.createTextNode(c));
-                } else {
-                    t.appendChild(c);
-                }
+    };
+    var t = doc.createElement(tag);
+    t.setAttribute('class', className);
+    if (typeof style === 'string') {
+        t.setAttribute('style', style);
+        setStyle(t, style);
+    } else {
+        for (var a in style) {
+            t.setAttribute(a, style[a]);
+            if (style[a] === null) {
+                t.removeAttribute(a);
+            }
+            if (a === 'style') {
+                setStyle(t, style[a]);
             }
         }
-        return t;
-    },
-</script>
+    }
+    if (children) {
+        for (var i = 0; i < children.length; i++) {
+            var c = children[i];
+            if (typeof c === 'string') {
+                t.appendChild(doc.createTextNode(c));
+            } else {
+                t.appendChild(c);
+            }
+        }
+    }
+    return t;
+};
+</pre>
     </div>
   </article>
 
