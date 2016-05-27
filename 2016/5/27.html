@@ -28,9 +28,13 @@
             around $40 a month for a Linode VPS (including database backups)
             containing this Wordpress site. Periodically the site would
             accumulate spam injected into the content, causing Google
-            to flag the site as malware. This would happen because I
+            to flag the site as malware. This kept happening because I
             wasn't constantly monitoring the site and keeping the Wordpress
-            and plugin code up to date.
+            and plugin code up to date. As a temporary safeguard I did
+            minor Wordpress upgrades, but doing a major version
+            upgrade from Wordpress 3 to 4 seemed counter-productive on
+            the crumbling infrastructure - I would just return to where
+            I started in a few years.
         </p>
         <p>
             I knew we had to do something at some point, so I was thinking
@@ -43,7 +47,7 @@
             a static site setup. We could get rid of the creeping threat
             of spam that confused search engines, and also forget about
             hosting costs. I considered migrating to a site hosted on Amazon
-            S3, but to create the least amount of work for me to do, I decided
+            S3, but to create the least amount of work for myself, I decided
             on just using <a href="https://pages.github.com/">GitHub Pages</a>
             with its built-in <a href="https://jekyllrb.com/">Jekyll</a>.
             The site would be in git anyways, so now there's one less thing to
