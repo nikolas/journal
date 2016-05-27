@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Wordpress and Jekyll
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Wordpress and Jekyll
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-05-27" itemprop="datePublished"
+          >Friday, May 27</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            For the past few years I've maintained a friend's portfolio
+            website which was built with Wordpress in 2012. She was paying
+            around $40 a month for a Linode VPS (including database backups)
+            containing this Wordpress site. Periodically the site would
+            accumulate spam injected into the content, causing Google
+            to flag the site as malware. This would happen because I
+            wasn't constantly monitoring the site and keeping the Wordpress
+            and plugin code up to date.
+        </p>
+        <p>
+            I knew we had to do something at some point, so I was thinking
+            about what I would use to rebuild the site in a more secure 
+            and sustainable way.
+            This site is basically "brochure-ware".
+            Because it's for a video marketing agency, we need some way to
+            show off some videos, and that's the most involved thing 
+            going on in the site. I figured this was a perfect use case for
+            a static site setup. We could get rid of the creeping threat
+            of spam that confused search engines, and also forget about
+            hosting costs. I considered migrating to a site hosted on Amazon
+            S3, but to create the least amount of work for me to do, I decided
+            on just using <a href="https://pages.github.com/">GitHub Pages</a>
+            with its built-in <a href="https://jekyllrb.com/">Jekyll</a>.
+            The site would be in git anyways, so now there's one less thing to
+            think about.
+        </p>
+        <p>
+            The new Jekyll site is at
+            <a href="http://www.farmandcellar.com/">farmandcellar.com</a>. The
+            old Wordpress site isn't around anymore. The source is
+            <a href="https://github.com/farmandcellar/farmandcellar.github.io"
+               >here</a>. Right now there's some design quirks on the site
+            that I plan to iron out. I need to fix the video slideshow on
+            the front page or make my own. But that's not the focus of this
+            post. Here's some things I learned about hosting a site on GitHub
+            Pages:
+        </p>
+        <ul>
+            <li>
+                When using the default github domain (like
+                farmandcellar.github.io), the site can be served over
+                HTTPS. But when using a custom domain like farmandcellar.com,
+                it doesn't seem possible at this point. So the site is on
+                HTTP for now.
+            </li>
+            <li>
+                GitHub <a href="https://help.github.com/articles/about-supported-custom-domains/#www-subdomains"
+                          >recommends</a> that you use a www subdomain as the 
+                canonical location instead of the apex domain 
+                (www.farmandcellar.com instead of farmandcellar.com) for
+                a few reasons including benefitting from GitHub's CDN.
+            </li>
+            <li>
+                Jekyll, like <a href="https://gohugo.io/">Hugo</a>, reads 
+                content as Markdown, but you're free to use HTML in the
+                <code>.md</code> files as well. I appreciate this
+                flexibility: All the pages in this site required me to 
+                insert HTML in the content files.
+            </li>
+        </ul>
+        <p>
+
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
