@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Prototyping a Video Sequencer Tool for Mediathread
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Prototyping a Video Sequencer Tool for Mediathread
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-06-17" itemprop="datePublished"
+          >Friday, June 17</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            The Mediathread team has been laying out plans for a video 
+            sequencing tool to be used as part of Mediathread, and now it's 
+            time for the fun part of actually putting it together.
+        </p>
+        <p>
+            The basic idea for the tool is to have two side-by-side visual
+            tracks playing at the same time. The left track displays
+            a video playing from start to finish. The right track displays
+            videos, images, or pieces of text, which are queued up by the user 
+            in a timeline interface. YouTube's annotation editor is the 
+            closest idea I've seen on the web to what we want to
+            build, but I'm sure there are others that I'm not aware of.
+        </p>
+        <p>
+            For the past few months I've been thinking I'll just develop this
+            with rigorously structured plain JavaScript, using a small
+            collection of libraries instead of an actual framework. As I
+            got closer to the prototyping stage, I kept thinking about all
+            the little pieces of data and interface cues that I'll need to
+            keep in sync, a lot like the
+            <a href="https://github.com/ccnmtl/wacep/tree/master/media/WeatherRoulette"
+               >WeatherRoulette</a> game in WACEP. Obviously, I want this
+            tool to be stable, and I've had luck with Ember in the past
+            when working on interactive front-end applications.
+        </p>
+        <p>
+            I was pretty sure I didn't want to use Ember. I like Ember,
+            but it's a Rails-style "opinionated" framework, which is 
+            great when starting up a new project, but I really want
+            this video tool to be tightly integrated into Mediathread.
+            I talked to someone at PyCon in Portland who reminded me
+            that <a href="https://facebook.github.io/react/">React</a> 
+            strives to be easily integrated into any web 
+            stack. It's really just a way of organizing the application
+            into components in a declarative fashion.
+        </p>
+        <p>
+            So I've bit the bullet and started experimenting with React.
+            My learning process was: 
+        </p>
+        <ol>
+            <li>
+                Read <a href="https://facebook.github.io/react/docs/thinking-in-react.html"
+                        >Thinking in React</a>, and skim over the React 
+                documentation.
+            </li>
+            <li>
+                Download and try out the code in the
+                <a href="https://facebook.github.io/react/downloads.html"
+                   >React Starter Kit</a>
+                to see how all the pieces fit together, what's required
+                to deploy the application, and what options I had regarding
+                that process.
+            </li>
+            <li>
+                Copy one of the example apps to a new directory and create
+                some components for the video tool, then get everything
+                to communicate with each other to get the behavior I want.
+
+            </li>
+        </ol>
+        <p>
+            The results of my final step are in a GitHub repo
+            <a href="https://github.com/nikolas/juxtapose">here</a>,
+            including stuff that I've so far only had peripheral knowledge
+            of, like "babel," "webpack," and the notorious "jsx".
+        </p>
+        <p>
+            My process has been productive. I can use the basic
+            structure of my prototype whether or not I choose to go
+            with React during the rest of development. I've been 
+            reminded of how nice it is to work with a
+            framework that automatically updates template
+            variables based on the state of the system, like Ember
+            but unlike Backbone. So I plan on continuing my React
+            development until I run into any major problems.
+        </p>
+        <p>
+            I'm developing my prototype outside of Mediathread,
+            keeping in mind I'll need to bring it back in to
+            the larger application. In order to queue up new
+            pieces of media, I'll need to call Mediathread's
+            collection pop-up to display the current collection
+            to the user.
+        </p>
+        <p>
+            I will probably need to use Mediathread's SherdJS
+            abstraction layer to talk to the YouTube and Vimeo
+            APIs through a uniform interface.
+            Interestingly, it looks like with some minor hacks you
+            can play
+            <a href="http://stackoverflow.com/a/21550559/173630">Vimeo</a> and
+            <a href="http://mediaelementjs.com/examples/?name=youtube">YouTube</a>
+            videos with the <code>&lt;video&gt;</code> tag! I haven't tried
+            this out myself, but if that worked consistently, it would
+            eliminate the work and complexity of connecting SherdJS
+            to our new juxtaposition tool.
+        </p>
+        <p>
+            I've added an iframe to the prototype below. So far you
+            can just play and pause the two videos. Next I want to
+            get the playhead to alter the position of the videos
+            correctly as you drag it, and then actually allow a clip
+            of the second video to be dragged around the Aux track.
+        </p>
+        <iframe 
+             style="margin-left: -100px"
+             width="700" height="600" 
+             src="http://nikolas.us.to/~nik/juxtapose/"></iframe>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
