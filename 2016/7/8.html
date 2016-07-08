@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Overview of a React application
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Overview of a React application
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-07-08" itemprop="datePublished"
+          >Friday, July 8</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            Now that I've made some progress on
+            <a href="https://github.com/ccnmtl/juxtapose">Juxtapose</a>
+            I wanted to review some of the pieces and decisions I've 
+            made when putting this together. There are some differences
+            between what I'm using here and what we've used for other
+            JavaScript projects at CTL.
+        </p>
+        <p>
+            In the <code>src</code> directory, there's a mix of 
+            <code>.js</code> and <code>.jsx</code> files. I'm using
+            <code>.jsx</code> when there's jsx templating in the file,
+            which allows Emacs to automatically indent these sections
+            correctly using <a href="http://web-mode.org/">web-mode</a>.
+        </p>
+        <p>
+            I've chosen to use the newer ecmascript 6 JavaScript syntax, 
+            made possible by <a href="https://babeljs.io/">Babel</a>.
+            You'll see the string <code>es2015</code> in
+            <code>.babelrc</code> and <code>.eslintrc</code> - this denotes
+            features added to ecmascript 6 in 2015, which turn out to
+            be the essential ones I've been using, like import / export / 
+            class.
+        </p>
+        <p>
+            Because I'm using a newer JavaScript syntax, jshint had trouble
+            with this code. It turns out most people are using eslint instead of
+            jshint for this, so I'm using that as well.
+        </p>
+        <p>
+            A key concept about making a React application is the balance 
+            of "state" vs "props". This was covered in 
+            <a href="https://facebook.github.io/react/docs/thinking-in-react.html#step-4-identify-where-your-state-should-live">Thinking in React</a>, and the guideline is to
+            identify which components depend on which pieces of state,
+            and put that state in one place: the nearest common parent.
+            In my application that turns out to be the root class:
+            <code>JuxtaposeApplication</code>.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
