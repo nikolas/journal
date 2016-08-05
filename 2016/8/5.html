@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Physical and virtual environments in Python 2.6
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Physical and virtual environments in Python 2.6
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-08-05" itemprop="datePublished"
+          >Friday, August 5</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            At CTL, we have pieces of code being actively used in many
+            obscure, hidden, and sometimes forgotten places throughout
+            our own infrastructure and the larger
+            university's. Recently I started working on a module for
+            <a href="https://blackrock.ccnmtl.columbia.edu/portal/"
+               >the Virtual Forest Initiative</a>, an application that 
+            connects data from the Blockrock Forest at
+            the <a href="http://www.ldeo.columbia.edu/">Lamont-Doherty
+            Earth Observatory</a>, west of the Hudson river just north
+            of the New York-New Jersey border.
+        </p>
+        <p>
+            Part of this application involves downloading sensor data 
+            collected by scientists at the forest. We periodically download 
+            this data to a central Linux server called Cunix. We have Python
+            2.6 available to us on this server, and the code used to download
+            this data is in this repo:
+            <a href="https://github.com/ccnmtl/blackrock_fetcher">blackrock_fetcher</a>
+        </p>
+        <p>
+            The module I'm working on graphs dendrometer data (a dendrometer is
+            an instrument that measures the width of tree trunks to track
+            their growth). After downloading the dendrometer's CSV data, I
+            wanted to prepare the data in order to graph it in the best way.
+            I chose to do this processing in the fetcher environment, instead
+            of in the browser's front-end code. In addition to just making more
+            sense to do this sort of preparation just once on the "back-end", I
+            saw the challenge of making the code Python 2.6-compatible as 
+            an added perk.
+        </p>
+        <p>
+            My co-worker Anders has developed a
+            <a href="https://github.com/ccnmtl/makefiles/blob/master/django.mk">Makefile-based scheme</a> 
+            for bootstrapping virtualenvs in Python. With some minor adaptation
+            I got this working in Python 2.6. It really just required adding an
+            extra package - <code>argparse</code> in the
+            <code>requirements/virtualenv_support</code> directory.
+        </p>
+        <p>
+            Now that I have a virtualenv, the
+            <a href="https://pypi.python.org/pypi">pypi</a> ecosystem is 
+            available to me, and I'm not limited by the Python packages 
+            installed on Cunix.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
