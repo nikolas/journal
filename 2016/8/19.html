@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            How not to use Feature Flags
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="http://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            How Not to use Feature Flags
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-08-19" itemprop="datePublished"
+          >Friday, August 19</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            <a href="https://en.wikipedia.org/wiki/Feature_toggle"
+               >Feature Flags</a> are useful in our continuous deployment
+            process at CTL. Using the same primary branch for development
+            and production has many benefits, and feature flags allow us
+            to hide certain aspects of the application that we don't
+            want users to see yet, because it's not finished.
+        </p>
+        <p>
+            Their use may seem obvious to most: just turn off a certain
+            part of the template with a feature flag. Somehow, I found
+            myself confounded at why I had made the decision four months 
+            ago to use a feature flag to override an entire view in
+            Mediathread:
+        </p>
+<pre>
+class MethCourseManagerMiddleware(CourseManagerMiddleware):
+    def process_request(self, request):
+        override_view = None
+
+        # When course_activation is turned on, use the 
+        # MethCourseListView which has the course 
+        # activation feature instead of courseaffils'
+        # CourseListView.
+        if waffle.flag_is_active(request, 'course_activation'):
+            override_view = MethCourseListView
+
+        return super(MethCourseManagerMiddleware, self).process_request(
+            request, override_view)
+</pre>
+        <p>
+            Because MethCourseListView is using a different template than
+            the default, CourseListView, there's now two different templates
+            being used, depending on the value of the feature flag. As a
+            result, there was some strange behavior between what was 
+            happening on development, production, and in selenium tests
+            that was really not obvious without having the feature
+            flag at the front of your mind.
+            At the time, I thought this scheme was necessary. But looking 
+            back, I could easily have just always overridden that view, and
+            hid the feature in question (in this case, the course activation
+            rows), in the template. That way, the same view logic is
+            always being used and tested. Also, in the case that you
+            forget about the flag, the diagnosis is, "the course 
+            activation rows aren't showing up". That makes it much
+            quicker to conclude that, "oh, the course activation
+            feature flag must be turned off."
+        </p>
+        <p>
+            So, my conclusion is that feature flags shouldn't introduce
+            divergent code paths, or serve different templates.
+            If possible, they should just be used to hide small portions
+            of a template.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
