@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            A simple slideshow with React
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            A simple slideshow with React
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-08-26" itemprop="datePublished"
+          >Friday, August 26</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            I'm trying to get more comfortable with React, so I decided
+            to see how quick I could put together a simple slideshow
+            application when planning for my presentation on the Virtual
+            Forest Initiative yesterday.
+        </p>
+        <p>
+            Source code is <a href="https://github.com/nikolas/react-slideshow/blob/master/slideshow.jsx"
+                              >here</a>, and here's a demo:
+        </p>
+        <iframe src="/~njn2118/dendrometer-slides/" height="400" width="500"></iframe>
+        <p>
+            I also made a slideshow application two years ago in Ember,
+            when I presented on WACEP Weather Roulette:
+            <a href="https://github.com/nikolas/weatherroulette-presentation">https://github.com/nikolas/weatherroulette-presentation</a>
+        </p>
+        <p>
+            For whatever reason, I'm happier with my newer one - it's much 
+            simpler.
+        </p>
+        <p>
+            One thing I like about React is that it doesn't assume
+            you're using any annoying build tools like grunt or gulp.
+            I believe <a href="http://hadihariri.com/2014/04/21/build-make-no-more/"
+                         >Make is just fine</a>!
+            And node.js isn't even required to develop and run React
+            applications. I see node.js as a sometimes useful, but
+            not really essential, part of front-end JavaScript
+            development. You can just include the necessary libraries
+            and then include the application code:
+        </p>
+<pre>
+&lt;script src="lib/react.js"&gt;&lt;/script&gt;
+&lt;script src="lib/react-dom.js"&gt;&lt;/script&gt;
+&lt;script src="lib/babel-core-5.8.38.min.js"&gt;&lt;/script&gt;
+
+&lt;-- My application --&gt;
+&lt;script type="text/babel" src="slideshow.jsx"&gt;&lt;/script&gt;
+</pre>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
