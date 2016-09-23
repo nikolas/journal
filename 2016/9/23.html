@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Reflections on dotfiles
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Reflections on dotfiles
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2016-09-23" itemprop="datePublished"
+          >Friday, September 23, 2016</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            <a href="https://en.wikipedia.org/wiki/Hidden_file_and_hidden_directory#Unix_and_Unix-like_environments">dotfiles</a> 
+            define settings in Unix environments, and have maintained 
+            a certain importance throughout the past few decades for
+            computer nerds around the world. There are lots of different
+            things you can do in a dotfile.
+        </p>
+        <p>
+            Make command aliases:
+        </p>
+        <pre>
+alias s='git status'
+alias d='git diff'
+alias l='git log'
+
+alias e='emacs -nw'
+        </pre>
+        <p>
+            Maybe the alias needs to do something slightly different
+            based on what operating system family you're using:
+        </p>
+        <pre>
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  alias ls='ls -F --color'
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  alias ls='ls -FG'
+fi
+        </pre>
+        <p>
+            For turning off my laptop's touchpad tap behavior,
+            I have this script at <code>.bin/touchpad.sh</code>:
+        </p>
+        <pre>
+#!/usr/bin/env bash
+synclient MaxTapTime=0
+        </pre>
+        <p>
+            You could have a script called
+            <a href="https://github.com/nikolas/dotfiles/blob/master/home/.bin/jcc">jcc</a>
+            that submits a file to Google's JavaScript compiler. If
+            you put that in your dotfile repository, you can now use
+            this anywhere your dotfiles are installed without worrying
+            about copying over this script itself.
+        </p>
+        <p>
+            Over the years, collections of dotfiles, and the contents of 
+            these files, evolve slowly and steadily - particularly
+            the often-used ones like <code>.bashrc</code>.
+        </p>
+        <p>
+            To manage
+            my <a href="https://github.com/nikolas/dotfiles/tree/master/home">dotfiles</a>,
+            I chose to use a tool called
+            <a href="https://github.com/andsens/homeshick">homeshick</a>
+            because it only requires bash to be installed, no
+            dependencies like python or ruby. It works for me, but
+            I've always wondered if there's a better way to do it.
+            The reasoning behind having a central place to store my
+            dotfiles is that I can make a single change to be used on
+            the handful of computers and servers I use regularly.
+        </p>
+        <p>
+            I don't always want or need to clone my central dotfiles
+            wherever I ssh to, though. I don't have them set up on
+            cunix, because all I do here log in and use emacs to write
+            blog entries once in a while. It would be nice to have the
+            same emacs configuration that I use everywhere else when
+            writing these posts, but the version of emacs on cunix is
+            a few years old, and it just doesn't matter enough to put
+            in the work of making my emacs configuration compatible
+            with it.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
