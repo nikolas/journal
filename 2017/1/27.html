@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            A reminder not to use bare except statements in Python
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-01-27" itemprop="datePublished"
+          >Friday, January 27, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            I wrote this code in 2015 when working on the 
+            <a href="https://github.com/ccnmtl/worth2">E-WORTH</a> project:
+        </p>
+        <pre>
+try:
+    GoalCheckInResponse.objects.create_or_update(
+        goal_setting_response=resp,
+        defaults=updated_values)
+except:
+    GoalCheckInResponse.objects.filter(
+        goal_setting_response=resp,
+        ).delete()
+
+    updated_values.update({'goal_setting_response': resp})
+    GoalCheckInResponse.objects.create(**updated_values)
+        </pre>
+        <p>
+            I remember that my intention here was along the lines of, 
+            "try to create or update this response, but if anything goes
+            wrong, it doesn't matter what, just delete the response in
+            question if it's there, and make a new one." Sounds reasonable, 
+            right? I thought I was programming cautiously and defensively here.
+        </p>
+        <p>
+            Sentry recently alerted us of an IntegrityError triggered
+            in the <code>except</code> stanza of this code. I did some
+            debugging, trying to come up with a unit test that reproduced
+            this error. That's when I found that the <code>except</code>
+            part of this code was always being used, because the method
+            I wanted to call is
+            <a href="https://docs.djangoproject.com/en/1.10/ref/models/querysets/#update-or-create">update_or_create()</a>,
+            and there is no create_or_update() in Django. Back then I
+            was more used to Rails than Django, so that explains the
+            mistake. And this would have been quickly caught by my
+            unit tests if it wasn't inside a try/except block that
+            was hiding all exceptions.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

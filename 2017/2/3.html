@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            How to branch React libraries
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            How to branch React libraries
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-01-27" itemprop="datePublished"
+          >Friday, February 3, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            When I've found it necessary to make changes to the npm libraries
+            I'm using in React, the process isn't well-documented and I've found
+            some guidelines through trial and error. To start, note that npm
+            parses github repositories in <code>package.json</code>, and you
+            can specify a branch with <code>#</code>, like this:
+        </p>
+<pre>
+    "react-grid-layout": "ccnmtl/react-grid-layout#dev",
+    "react-player": "ccnmtl/react-player#new-vimeo-api",
+</pre>
+        <p>
+            Start with that, and then solve the problems as they come up.
+            If you get errors saying the module isn't found, it probably
+            needs to be built. Each node module is allowed to define its
+            own build process, and can rely on any number of dependencies
+            and build tools, like webpack, broccoli, babel, etc. I've been
+            dealing with this in my own <code>Makefile</code>:
+        </p>
+<pre>
+$(JS_SENTINAL): package.json
+    rm -rf $(NODE_MODULES)
+    npm install
+    cd $(NODE_MODULES)/react-grid-layout && npm install && make build-js
+    cd $(NODE_MODULES)/react-player && npm install && npm run build:webpack
+    touch $(JS_SENTINAL)
+</pre>
+        <p>
+            So any time my dependencies get installed, we go through each
+            forked library's custom build process. I've found this pattern
+            to be reliable so far.
+        </p>
+        <p>
+            I'll admit that this configuration does seem a little redundant.
+            I'm expecting things to change, either as the inevitable pace
+            of JavaScript/node.js progress sweeps along, or as I learn more
+            about the npm ecosystem. For example, could this be simpler if
+            I was using <a href="https://yarnpkg.com/">yarn</a> instead of 
+            npm?
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
