@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Debugging volume with react-player
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Debugging volume with react-player
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-02-16" itemprop="datePublished"
+          >Thursday, February 16, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            We've uncovered a problem related to volume in
+            <a href="https://github.com/ccnmtl/juxtapose/">Juxtapose</a>.
+            In the following screenshot, the video still in the top
+            right corresponds to the clip that the playhead is inside.
+        </p>
+        <img src="img/sc1.png">
+        <p>
+            The volume for this video plays, as expected, on
+            playthrough. But what happens when we pause the sequence
+            and move the playhead slightly before the clip?
+        </p>
+        <img src="img/sc2.png">
+        <p>
+            Now the state of the sequence player is paused, and you
+            wouldn't expect anything to be happening. But the
+            music video I've loaded in this clip has started playing
+            over the speakers even though it's not visible. I can see
+            how this might be happening, because of how I've
+            implemented the secondary videos which I'll explain later.
+            But the problem is deeper than my investigations have so
+            far reached, so I decided to write about it. Sometimes if
+            you just methodically go over something step by step, the
+            answer comes to you. I remember a handful of times when
+            I've taken a half hour to type out a StackOverflow
+            question, only to discover the answer myself once I put
+            the complete question into words.
+        </p>
+        <p>
+            In order to display different clips of YouTube and Vimeo
+            videos right after one another, the sequence tool
+            instantiates each player instance it will need as soon as
+            we know what video elements that sequence contains. So in
+            the sequence above, there are three react-player
+            instances. I'm using a wrapper class called 
+            <a href="https://github.com/ccnmtl/juxtapose/blob/master/src/AVPlayer.jsx"
+               >AVPlayer</a>, in which the ReactPlayer is created.
+            The player gets primed (<code>playing</code> set to true)
+            a few seconds before it appears in the user's display
+            area, as a rough estimate to account for the time it will
+            take to initialize. This priming process seems to be a
+            piece of what causes this bug, because it doesn't occur
+            when the playhead is over two seconds before the next
+            video clip. Using the React Developer Tools browser
+            extension, I can see that the <code>volume</code> prop
+            passed from AVPlayer to ReactPlayer, as well as its child
+            <code>YouTube</code> component, is 0 as expected. This
+            shouldn't be happening, because this is exactly why I like
+            using a library like React: the component's props dictate
+            its behavior, always, and that's it. It's possible we've
+            uncovered a bug in react-player, so now I'm looking at
+            react-player's YouTube code to see how
+            <code>setVolume()</code> gets called.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

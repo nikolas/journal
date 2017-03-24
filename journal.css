@@ -35,3 +35,7 @@ ul.links li {
 footer {
     font-size: 1.2em;
 }
+
+article img {
+    max-width: 500px;
+}

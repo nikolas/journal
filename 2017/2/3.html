@@ -17,7 +17,7 @@
             How to branch React libraries
         </h1>
         <div style="display: none;" itemprop="author">Nik Nyby</div>
-        <time datetime="2017-01-27" itemprop="datePublished"
+        <time datetime="2017-02-03" itemprop="datePublished"
           >Friday, February 3, 2017</time>
     </header>
 
@@ -55,12 +55,37 @@ $(JS_SENTINAL): package.json
             to be reliable so far.
         </p>
         <p>
-            I'll admit that this configuration does seem a little redundant.
+            I'll admit that this configuration does seem a little ad hoc.
             I'm expecting things to change, either as the inevitable pace
             of JavaScript/node.js progress sweeps along, or as I learn more
             about the npm ecosystem. For example, could this be simpler if
             I was using <a href="https://yarnpkg.com/">yarn</a> instead of 
             npm?
+        </p>
+        <p>
+            If your build is still failing, you might also need to
+            give the library's <code>.npmignore</code> file some
+            attention. Library authors tend to add the library's
+            source directory to their <code>.npmignore</code> because
+            it's not necessary to distribute the sources when using
+            pre-built dist files. I've made the choice to build these
+            libraries along with the package that's using them, but
+            you could just as well pre-build the distribution files
+            and commit the compiled code. I like to leave that step up
+            to the library authors, though, and it also creates
+            unwieldy diffs.
+        </p>
+        <p>
+            In react-player I have to remove
+            <code>src</code> and <code>webpack.config.*.js</code> from
+            its
+            <code>.npmignore</code>, and in react-grid-layout I've had
+            to remove the <code>lib</code> directory. Again, these are
+            ad hoc solutions to a problem that's not yet fully solved.
+            The npm team gives a good overview of the state of things, at least,
+            as it was in 2014, in their blog post:
+            <a href="http://blog.npmjs.org/post/101775448305/npm-and-front-end-packaging"
+               >npm and front-end packaging</a>.
         </p>
     </div>
   </article>
