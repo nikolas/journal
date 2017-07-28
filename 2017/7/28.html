@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            A PHP/nginx/ubuntu configuration
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            A PHP/nginx/ubuntu configuration
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-07-28" itemprop="datePublished">Friday, July 28, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            I like to make changes that simplify our setup by removing
+            the amount of different technologies we use, to reduce
+            mental and maintenance overhead. We use public-facing
+            nginx proxy servers that point to our internal application
+            servers. On our PHP sites that use Drupal 7 or MediaWiki,
+            these internal application servers were using Apache to
+            serve the PHP code. It's been possible for a while now to
+            use nginx in place of Apache for this, so I've recently
+            made that change for our staging instances, and I'll be
+            activating this for production soon.
+        </p>
+        <p>
+            For MediaWiki, the application conf looks like this:
+        </p>
+<pre>
+server {
+    listen   80;
+    server_name {{server_name}};
+    root /var/www/{{app}};
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ @rewrite;
+    }
+
+    location @rewrite {
+        rewrite ^/(.*)$ /index.php?title=$1&$args;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    }
+}
+</pre>
+        <p>
+            When making changes like this, it's often best to only
+            change one thing at a time. But in this case I broke that
+            rule by using this as an opportunity to test out using
+            Ubuntu 16.04 / PHP 7, and things just worked without any
+            issues.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>

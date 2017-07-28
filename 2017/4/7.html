@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Outline of an ePub authoring system
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Outline of an ePub authoring system
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-04-07" itemprop="datePublished">Friday, April 7, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            I mentioned in a
+            <a href="http://www.columbia.edu/~njn2118/journal/2017/3/24.html">previous post</a>
+            that we're working on interactive e-book for the
+            Women on the Road to Health project. Here I'll outline a simple
+            system for authoring ePub 3 content.
+        </p>
+        <p>
+            There are plenty of tools you can use to help you make an
+            ePub 3 bundle. Here's a list of some of them:
+            <a href="http://www.daisy.org/daisypedia/tools-creating-epub-3-files">http://www.daisy.org/daisypedia/tools-creating-epub-3-files</a>
+        </p>
+        <p>
+            As I mentioned in the post linked above, I've been solving
+            problems in the most basic way possible and then working
+            up from there. Now that I need to deal with about 50 pages
+            of content in our ePub, I imagined that a script in the
+            style of a static site generator would be useful. There are
+            two reasons for this: In an ePub, the table of contents needs
+            to be in sync with the content, and each page in an ePub
+            has its own xhtml file.
+        </p>
+        <p>
+            <a href="https://github.com/ccnmtl/worth3/blob/master/scripts/build_tree.py">build_tree.py</a>
+            reads the data
+            in <a href="https://github.com/ccnmtl/worth3/blob/master/scripts/tree.json">tree.json</a>
+            and applies this to the templates in
+            the <a href="https://github.com/ccnmtl/worth3/tree/master/scripts/templates">templates/</a>
+            directory, then writes the rendered templates into the
+            EPUB directory. Right now, the "template rendering"
+            process is just a string
+            replace:
+<pre>
+    newpage.write(page_t.replace('TITLE', page['title']))
+</pre>
+        <p>
+            Currently, tree.json only contains the structure of the
+            book and the title of each page. I'm expecting to adapt
+            the data model to our content, with the ability to specify
+            video pages, interactives, etc. The ePub we're making
+            doesn't actually contain many pages of multi-paragraph
+            text, but this system could definitely work for more
+            traditional ePubs like that.
+        </p>
+        <p>
+            As I work through the
+            <a href="http://shop.oreilly.com/product/0636920024897.do">EPUB 3 Best Practices book</a>
+            I'll be adding improvements along the way.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
