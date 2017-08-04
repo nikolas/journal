@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Emacs for Vim users - the thrill of the unknown
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Emacs for Vim users - the thrill of the unknown
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-08-04" itemprop="datePublished">Friday, August 4, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            I'm actually a
+            well-adjusted <a href="https://www.gnu.org/software/emacs/">Emacs</a>
+            user, which are few and far between. It's now been 4 years
+            since I moved to New York and started using Emacs as my
+            text editor for development. Here I'll go through parts of
+            my impression so far about Emacs compared to Vim when used
+            for programming, and some of my favorite extensions and
+            parts of my configuration in Emacs.
+        </p>
+        <p>
+            When I think about opening a file in Vim, my muscle memory
+            hesitates for a moment - what if I need to open another
+            file? As a Vim user, I had used
+            <a href="https://github.com/scrooloose/nerdtree">NERDtree</a>
+            to browse my directory tree and navigate through files. I
+            appreciate NERDtree's visual layout because I think of
+            myself as a visual person. The problem of opening files
+            and navigating between them can be solved in many ways, in
+            Vim and Emacs, and I've found that Vim's solutions often
+            involve random extensions, and it just feels less
+            orthogonal and well-designed than navigation in
+            Emacs. This is the main reason that I like using Emacs
+            when working on anything involving more than one
+            file. Using <code>C-x C-f</code> opens the minibuffer that
+            allows you to type anything, has good tab completion, and
+            always works as expected.
+            The <a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/Minibuffer-File.html#Minibuffer-File">minibuffer</a>
+            in Emacs is a central feature that I can't do without, for
+            now. From there I'll often split the window with <code>C-x
+            3</code> or <code>C-x 2</code>, and maybe switch to an
+            older buffer in one pane with <code>C-x b</code>. The
+            process is simpler and quicker than what I've found using
+            the <code>:o</code> command in Vim. Notably, I no longer
+            rely on a perpetual visual directory layout, but always
+            have the option to open the directory with <code>C-x
+            C-f</code> if I need to look around.
+        </p>
+        <p>
+            I believe that if you use a text editor, you should be
+            able to use it with its default settings without that much
+            inconvenience to your muscle memory. So like, the less
+            crazy extensions and command customizations you have, the
+            better.
+        </p>
+        <p>
+            <a href="http://www.isaacezer.com/">An old co-worker</a>,
+            when we were both learning Emacs, introduced me to the
+            Emacs extension that I still use the most:
+            <a href="https://www.emacswiki.org/emacs/NumberedWindows">window-number-mode</a>.
+            Without <code>window-number-mode</code> installed, I can
+            use the Emacs default <code>C-x o</code> just fine. But I'll
+            admit that I have gotten used to switching between panes with
+            <code>M-1</code>, <code>M-2</code>, <code>M-3</code>, etc.
+        </p>
+        <p>
+            Another customization I'll admit to using is a key
+            shortcut to go to a specific line number:
+        </p>
+        <pre>
+(global-set-key (kbd "C-c g") 'goto-line)
+        </pre>
+        <p>
+            And pretty often, I'll use
+            this <a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/Abbrevs.html">abbrev</a>
+            I've defined to insert a pdb breakpoint. Instead of typing
+            out the whole thing I'll just type <code>pdb</code>.
+        </p>
+        <pre>
+(define-abbrev global-abbrev-table "pdb"
+  "from ipdb import set_trace; set_trace()")
+        </pre>
+        <p>
+            There are a few other extensions I regularly use,
+            including <a href="https://github.com/purcell/whitespace-cleanup-mode">whitespace-cleanup-mode</a>
+            and <a href="https://github.com/syohex/emacs-git-gutter">git-gutter</a>. No
+            doubt, extensions like this are available for Vim as well,
+            but unlike Vim, Emacs has a built-in
+            <a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/Packages.html">package
+            manager</a>.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
