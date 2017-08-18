@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            JavaScript's &#35;ifdef
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            JavaScript's  &#35;ifdef
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-08-18" itemprop="datePublished">Friday, August 18, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            In C you can use
+            <a href="https://en.wikipedia.org/wiki/Conditional_compilation">&#35;ifdef</a>
+            to tell the compiler to ignore certain parts of the code, depending on build-time
+            configuration or environmental factors like operating system features.
+        </p>
+        <p>
+            I've used a similar pattern in JavaScript, and we can
+            think of this in the same way.
+        </p>
+<pre>
+// Some code only needs to be run in the browser, and
+// I don't really care about testing it.
+if (typeof document === 'object') {
+    $(document).ready(function() {
+        $.getJSON('/json/all/').done(function(items) {
+           // ...
+        }
+    }
+}
+
+// And some code only needs to be run in node.js, so
+// my tests can connect to it.
+if (typeof module !== 'undefined') {
+    module.exports = { Search: Search };
+}
+</pre>
+        <p>
+            This makes the code more flexible. But I would only use
+            this to stub out entire functions, not inside parts of
+            logic. That would make the code more complicated and
+            confusing.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
