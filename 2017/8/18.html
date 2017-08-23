@@ -37,7 +37,7 @@
 if (typeof document === 'object') {
     $(document).ready(function() {
         $.getJSON('/json/all/').done(function(items) {
-           // ...
+            var search = new Search(items);
         }
     }
 }
