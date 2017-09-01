@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            How to render Vega visualizations in React
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            How to render Vega visualizations in React
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-09-01" itemprop="datePublished">Friday, September 1, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            I recently discovered
+            the <a href="http://vega.github.io/">Vega</a> project,
+            which is a JSON specification for describing interactive
+            data visualizations. I stumbled into this project as I was
+            learning d3.js for an economics graph authoring tool that
+            I'm developing, and now I'm thinking I will just use this
+            instead of d3. We'll see how that pans out, as I'm new to
+            data visualization.
+        </p>
+        <p>
+            I haven't dug deep into this format yet, but I'm hoping it
+            will be a flexible way to represent these configurable
+            graphs I'm creating.
+        </p>
+        <p>
+            Well, so I didn't do any work here. I've just stripped
+            <a href="https://vega.github.io/editor/#/">vega-editor</a>'s
+            <a href="https://github.com/vega/vega-editor/blob/redux/src/components/renderer/renderer.js">graph renderer</a>
+            of some unneeded stuff and put it in my 
+            <a href="https://github.com/ccnmtl/econplayground.js">new react app</a>,
+            and everything just worked.
+        </p>
+        <p>
+            The component takes two parameters, the vega graph (a JSON object), 
+            and a renderer option ('canvas' or 'svg').
+        </p>
+<pre>
+ import React from 'react';
+ import PropTypes from 'prop-types';
+ import * as vega from 'vega';
+
+ /**                                                                                                                                                                                                            
+  * Based on renderer.js from vega-editor.                                                                                                                                                                      
+  */
+ export default class VegaRenderer extends React.Component {
+     static propTypes = {
+         vegaSpec: PropTypes.object,
+         renderer: PropTypes.string
+     };
+
+     renderVega(props) {
+         this.chart.style.width =
+             this.chart.getBoundingClientRect().width + 'px';
+         let runtime;
+         let view;
+         try {
+             runtime = vega.parse(props.vegaSpec);
+             view = new vega.View(runtime)
+                 .logLevel(vega.Warn)
+                 .initialize(this.chart)
+                 .renderer(props.renderer);
+
+             view.hover();
+             view.run();
+         } catch (err) {
+             throw err;
+         }
+         this.chart.style.width = 'auto';
+     }
+
+     componentDidMount() {
+         this.renderVega(this.props);
+     }
+
+     componentDidUpdate() {
+         this.renderVega(this.props);
+     }
+
+     renderChart() {
+         return (
+             &lt;div className='chart-container'&gt;                                                                                                                                                                  
+                 &lt;div className='chart'&gt;                                                                                                                                                                        
+                     &lt;div ref={(c) =&gt; { this.chart = c; }}&gt;                                                                                                                                                     
+                     &lt;/div&gt;                                                                                                                                                                                     
+                 &lt;/div&gt;                                                                                                                                                                                         
+             &lt;/div&gt;
+         );
+     }
+
+     render() {
+         return (
+             this.renderChart()
+         );
+     }
+ }
+</pre>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'nnyby';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
