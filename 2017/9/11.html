@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            An interactive economics graphs in JSXGraph
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.99.6/jsxgraphcore.js"></script>
+        <script src="graph.js"></script>
+
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            An interactive economics graphs in JSXGraph
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-09-11" itemprop="datePublished">Monday, September 11, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            In <a href="./1.html">my previous
+            post</a> I'm all excited about Vega, a way to represent
+            data visualizations in a JSON structure. But as I
+            half-expected, I'm actually going in a different direction
+            now. I've discovered that there's a difference between
+            data-driven visualization libraries like Vega, (and d3.js,
+            after all, stands for data-driven documents), and dynamic
+            math libraries like
+            <a href="http://jsxgraph.org">JSXGraph</a>. Everything
+            I've seen in the data-driven libraries expects a data set
+            that can then be displayed in many possible ways. In
+            contrast, you can tell JSXGraph to create two points, then
+            create a circle or line connected to those two points, and
+            everything is draggable by default. This is similar to
+            another library I was considering but haven't
+            tried: <a href="https://two.js.org/">two.js</a>
+        </p>
+        <p>
+            I've pretty much realized that Vega's JSON structure isn't
+            a necessary enough property to make up for what it lacks,
+            which JSXGraph has: built-in interactive geometry features.
+            Here's a demand-supply graph that has dotted lines stuck
+            perpendicular at the axes to the two lines' intersection.
+            As flexible as d3/vega seem to be, this kind of thing
+            seems to be easier in JSXGraph. As far as storing the
+            configuration options to create these graphs, I'm sure
+            I'll figure something out.
+        </p>
+        <div id="box" class="jxgbox" style="width:500px; height:400px;"></div>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+</body>
+</html>
