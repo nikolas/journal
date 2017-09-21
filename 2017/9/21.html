@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            An outline for developing embedded React applications
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            An outline for developing embedded React applications
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-09-21" itemprop="datePublished">Thursday, September 21, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            There's so much I like about React: new ECMAScript
+            features, declarative program structure, patchy yet
+            sufficient documentation. Okay, the only React-specific
+            thing there is the declarative program structure -
+            automatic view rendering based on the relation between
+            state and props. You can use ESnext wherever you want to
+            set up babel (becoming less and less necessary) and
+            webpack, and lots of projects have good documentation. But
+            my point is, I have drunk the React kool-aid. So far, I've
+            only skimmed over the docs for
+            <a href="https://vuejs.org/">Vue.js</a>, and if that ends
+            up taking over, I'm fine with that. It seems similar
+            enough to React at first glance.
+        </p>
+        <p>
+            For many React apps, you will want to communicate with a
+            server through a REST api. At the CTL we primarily use
+            Python and Django for custom web apps, so I'm
+            using <a href="http://www.django-rest-framework.org/">django-rest-framework</a>.
+            That's what I mean by "Embedded React Application". As
+            opposed to a single-page JavaScript application like
+            Ember really embraced a few years ago
+            (I'm not sure if that's different now, I haven't looked),
+            I'm making React components that communicate with a
+            surrounding Django application.  This is also how we
+            developed
+            Mediathread's <a href="http://mediathread.info/content/spring-2017-new-sequence-assignment-type-launches">Sequence
+            Assignment</a>.
+        </p>
+        <p>
+            Recently I used a new project I'm developing as an
+            opportunity to try out the new
+            <a href="https://github.com/facebookincubator/create-react-app">create-react-app</a>
+            utility, which I was skeptical about, but had incorrectly
+            thought that's now the recommended way to work with React
+            applications, so I will just go with the flow. I was
+            annoyed that the commands to start, test, and build my
+            application were all delegated to
+            a <a href="https://github.com/facebookincubator/create-react-app/tree/master/packages/react-scripts">react-scripts</a>
+            tool that didn't provide any help, info, or flexibility.
+
+            I also led myself into a roadblock when trying to develop
+            my React app within Django:
+            <a href="https://github.com/facebookincubator/create-react-app/issues/3156">Where
+            is bundle.js on the filesystem?</a>
+        </p>
+        <p>
+            Fortunately, you can
+            <a href="https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#npm-run-eject">eject</a>
+            from the create-react-app way, which removes the
+            react-scripts dependency from your package.json and adds
+            all the dependencies and configuration files that
+            react-scripts uses to your project, so you can make
+            changes more directly. I was really satisfied with this
+            and was able to start developing in React/Django quickly
+            after copying the <code>prod</code> webpack config
+            to <a href="https://github.com/ccnmtl/econplayground.js/blob/master/config/webpack.config.dev.js">webpack.config.dev.js</a>,
+            making some small changes to remove prod references and
+            filename hashes, and making an <code>npm run dev</code> command:
+        </p>
+<pre>
+"dev": "webpack -d --watch --config config/webpack.config.dev.js",
+</pre>
+        <p>
+            So now, the workflow I used once for Mediathread becomes
+            more standard as I try it on a new project:
+        </p>
+<pre>
+cd djangoapp
+rm media/djangoapp/bundle.js
+ln -s ~/public_html/reactapp/build/bundle.js media/djangoapp/bundle.js
+make runserver
+</pre>
+        <p>
+            ... while webpack builds bundle.js in development mode,
+            watching my files as I edit them. And someday that won't
+            be necessary, maybe. I feel like I've typed this before,
+            but JavaScript engine functionality has caught up with
+            ECMAScript standards. Now what's missing is packages and
+            imports in JavaScript - the focus of endless developments
+            in the last 7 years. Or is that already here in the
+            standards? Maybe I only have parts of the picture.
+        </p>
+        <hr />
+        <p>
+            I would invite you to comment below, but my disqus code
+            was injecting malware. I just removed it instead of
+            bothering to fix it. My email's on the main page here.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+</body>
+</html>
