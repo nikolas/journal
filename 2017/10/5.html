@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Adding unicode support to write
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Adding unicode support to write
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2017-10-05" itemprop="datePublished">Thursday, October 5, 2017</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            In Unix, there's
+            a <a href="https://en.wikipedia.org/wiki/Write_(Unix)">write</a>
+            command that lets you send messages to other users logged
+            in to the system.  In Debian, a version of this command is
+            included in the
+            <a href="https://packages.debian.org/sid/bsdmainutils">bsdmainutils</a>
+            package. I'm lucky enough to know people that like to
+            communicate with me this way.
+        </p>
+        <p>
+            It's a known bug that <code>write</code> only supports the
+            basic characters that are part
+            of <a href="https://en.wikipedia.org/wiki/ASCII">ascii</a>.
+            So you can't use the special characters of different
+            languages like Danish or Spanish.
+        </p>
+        <blockquote>
+            The write utility does not recognize multibyte characters.
+            <br /><br />
+            <small>&mdash;from write's man page</small>
+        </blockquote>
+        <p>
+            You can fix this by changing the character buffer to use a multi-byte type
+            instead of the old-school 8-bit <code>char</code>.
+            Details are <a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=876557#10">here</a>.
+        </p>
+        <p>
+            There are still some improvements that I need to make with this
+            patch. <code>wchar_t</code> <a href="https://en.wikipedia.org/wiki/Wide_character#C.2FC.2B.2B">isn't
+            ideal</a> for UTF-8 data, though it works. Apparently it's
+            better (i.e. possibly more portable in the long run) to
+            use <code>char16_t</code> or <code>char32_t</code>,
+            including
+            <code>uchar.h</code> instead of <code>wchar.h</code>.
+            <a href="https://stackoverflow.com/a/527307/173630">https://stackoverflow.com/a/527307/173630</a>
+            Also, I need to investigate some interactions between this patch and how
+            it's displayed over ssh when you're connecting through Mac OS X.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+</body>
+</html>
