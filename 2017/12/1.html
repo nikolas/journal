@@ -25,11 +25,11 @@
             <a href="https://github.com/ccnmtl/django-lti-provider">django-lti-provider</a>
             is a Python library for integrating Django apps with an
             <a href="http://www.imsglobal.org/activity/learning-tools-interoperability">LTI</a>
-            provider
+            consumer
             like <a href="https://www.canvaslms.com/">Canvas</a>. django-lti-provider
             uses
             <a href="https://github.com/mitodl/pylti">pylti</a> to
-            make the LTI oauth requests. The
+            make LTI oauth requests. The
             <a href="https://github.com/pylti/lti">lti</a>
             library could also be used for this same purpose.
         </p>
@@ -52,19 +52,20 @@
             click the toolbar button, but the student viewing the
             content won't be. So, if you're expecting to
             do <a href="https://canvas.instructure.com/doc/api/file.assignment_tools.html">grade
-            passback</a>, this method isn't a good option. Instead,
-            I'm using an Assignment, and connecting my tool to it
-            using the External Tool option. Now, when a student views
-            the assignment, a POST request is made to my tool
-            containing auth credentials for automatic authentication.
+            passback</a>, this method isn't a good option. For my
+            purposes, I ended using an Canvas's Assignment model, and
+            connecting my tool to it using the External Tool
+            option. Now, when a student views the assignment, a POST
+            request is made to my tool containing auth credentials for
+            automatic authentication.
         </p>
         <p>
             Also when you're developing, keep in mind that PyLTI
             doesn't yet give much detail about why a score submission
-            request failed, so if you see django-lti-provider emitting
+            request failed. So if you see django-lti-provider displaying
             a "Post grade failed" error, add the pylti logger to
             your <code>local_settings.py</code> and look at the actual
-            response that Canvas gave.
+            response that Canvas gave:
         </p>
 <pre>
 LOGGING = {
