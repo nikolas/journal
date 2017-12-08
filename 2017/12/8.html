@@ -89,7 +89,7 @@ class MyLTILandingPageTest(LoggedInTestMixin, TestCase):
         self.assertEqual(ctx.get('submissions').count(), 1)
 </pre>
         <p>
-            The above test runs into a few
+            The test above runs into a few
             errors. <code>self.lti</code> needs to be set,
             and it also needs to respond to a <code>course_context()</code>
             method call. This turned out to be sufficient:
@@ -127,7 +127,7 @@ def test_get(self):
         <p>
             So, if there's a clearer, more idiomatic way to do this
             using Python's standard mock library, maybe a way to
-            override dispatch() using mock, I'd love see some
+            override dispatch() using mock, I'd like see some
             examples.
         </p>
     </div>
