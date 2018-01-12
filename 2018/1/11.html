@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            My MINIX Nightmare
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            My MINIX Nightmare
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2018-01-11" itemprop="datePublished">Thursday, January 11, 2018</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            The beginning of a new year always feels kind of
+            weird. Maybe it's that I wasn't done with the last year,
+            but something usually feels off to me, like it shouldn't
+            be 2018 yet.
+        </p>
+        <p>
+            I've been messing around and reading about
+            <a href="http://www.minix3.org/">Minix</a>, trying to
+            understand how filesystems work. Don't ask me why. I was
+            thinking I could do something achievable but useful like
+            try adding FAT or ext3/4 support to Minix. Well, at the
+            moment, I'd be really proud of even getting Minix's ext2
+            driver to work correctly.
+        </p>
+        <p>
+            So, obviously, you can't just jump in to the Minix source
+            code and automatically know your way around, or how to
+            begin going about adding a filesystem.  But like I've
+            learned through anything I've ever done, just spend enough
+            time with something and it can become natural, even if it
+            makes no sense at first.
+        </p>
+        <p>
+            Reading through the Minix documentation and source code
+            alongside
+            <a href="https://www.pearson.com/us/higher-education/program/Tanenbaum-Operating-Systems-Design-and-Implementation-3rd-Edition/PGM228096.html">Operating
+            Systems: Design and Implementation</a> is a really cool
+            experience anyways. Minix is an operating system designed
+            from the start to be used for teaching. It's dedicated to
+            a simple-as-possible approach, and is filled with
+            clear, straightforward documentation.
+            Through extensive comments and READMEs, the authors fully
+            describe each piece of code and decision they've made. So
+            yeah, I find operating systems interesting because you can
+            feel the human element of the authors coming out of the
+            code. And it's just amazing that it all actually
+            works. I'm really not interested in things like machine
+            learning because I feel it takes away the whole reason why
+            I like software - because of the people, the
+            personalities, the drama. I don't want to talk to a robot.
+        </p>
+        <p>
+            Recently, Minix's file layout has been re-organized, and
+            many utilities have been brought over from
+            <a href="http://netbsd.org/">NetBSD</a> including its
+            package manager. So, Minix is no longer just for
+            experiments and education, but also a system where you can
+            use many tools already available for standard Linux.
+        </p>
+        <p>
+            Speaking of Linux, I <a href="https://en.wikipedia.org/wiki/Tanenbaum%E2%80%93Torvalds_debate">don't care</a>
+            right now that Minix is a "micro-kernel" or Linux is
+            "monolithic". Minix is designed in a way that allows its drivers, 
+            like the filesystem, to be run as processes in userspace, instead
+            of in kernel space. If that doesn't mean much to you, well it
+            doesn't mean much to me either. The only consequence of this
+            that I've noticed is that even low-level filesystem code is 
+            able to include standard C headers like <code>string.h</code>
+            and <code>unistd.h</code>, instead of using their own lower-level
+            versions of these libraries. I'm just using Minix to learn
+            about operating systems, and for anyone that wants to do that,
+            I recommend it.
+        </p>
+        <p>
+            After the new year came, I kept seeing new articles about
+            some kind of bug in Intel CPUs. I'm not a security person
+            - I don't take it too seriously because I think computers
+            in general are taken way too seriously. If you're worried
+            about someone finding something out about you, don't enter
+            that info in a computer - just like how you wouldn't write
+            it in a notebook, I dunno.  But as a web developer and
+            all-around Linux geek, I had seen random vulnerabilities
+            come up, like the
+            <a href="https://en.wikipedia.org/wiki/Heartbleed">Heartbleed</a>
+            bug in 2014 with mild interest.
+        </p>
+        <p>
+            This new vulnerability was interesting because the fixes
+            (which are only able to mitigate parts of the problem)
+            required big changes in every operating system that runs on an
+            Intel CPU, and all the drama that unfolded.
+            The OpenBSD
+            developers, security experts, found satisfaction in the
+            apparent failure of this particular
+            security-through-obscurity style NDA used with the major
+            operating systems developers.
+            <a href="https://marc.info/?l=openbsd-misc&m=151522749523849">Meltdown,
+            aka "Dear Intel, you suck"</a>. According to the OpenBSD
+            developers, Intel sucks not because of this bug, but
+            because of what they did to fix it. They approached a few
+            major OS developers, excluding OpenBSD and many others,
+            about this flaw that requires changes to the operating
+            system. Under an NDA, everyone agreed to make this public
+            somewhere around January 9, 2018, once all the fixes were
+            in place.
+            Before that date,
+            some savvy journalists started <a href="https://www.theregister.co.uk/2018/01/02/intel_cpu_design_flaw/">reporting</a>
+            on telling commits in the Linux kernel, and with a snowball effect,
+            security nerds <a href="https://twitter.com/brainsmoke/status/948561799875502080">everywhere</a>
+            deduced the full situation: that there's a weird hardware
+            bug in Intel's CPUs.
+            The OpenBSD developer asks sarcastically, "Aren't we all
+            glad that this was under embargo and strongly believe in
+            the future value of embargoes?"
+            And any die-hard proprietary software fanatic (do those
+            exist?) could just use this as another of their few
+            reasons not to develop in the open. I don't really
+            have any answers, just the facts.
+        </p>
+        <p>
+            Interestingly, Minix
+            <a href="https://groups.google.com/d/msg/minix3/RMQgCbHxlX4/nHMGVVmIBQAJ">isn't vulnerable</a>
+            to the Meltdown issue, because of some of its features I don't care about
+            that I mentioned earlier.
+        </p>
+        <p>
+            So, it's been entertaining, but applying patches like this
+            always feels so unsatisfying. "Not that I *really* care,
+            but my system is 'secure' now, right?" What about all the
+            other security vulnerabilities that haven't been
+            discovered publicly yet? Or the countless known
+            vulnerabilities in any of the many layers of hardware and
+            software on the servers, desktops, and laptops that I use, that
+            aren't just completely up to date?  I also kept thinking
+            in the back of my mind.. didn't I read something in
+            November or December about a secret processor that runs
+            alongside every Intel CPU, in some kind of
+            ultra-privileged mode, or "ring"?  If that were
+            true... what good would an operating system patch be?  I
+            feel like I watched YouTube video of some talk about this,
+            but couldn't find anything related in my browser history.
+        </p>
+        <p>
+            I went back to Minix, browsing through their
+            <a href="https://groups.google.com/forum/#!forum/minix3">mailing
+            list</a> reading about Minix's lack of amd64 and SMP
+            support, and saw a new post called "minix the most used OS
+            in the world". This sounded like a joke, and similar to
+            the beginning of the title of a debate I mentioned earlier
+            - there was a post to the mailing list in 1992 titled
+            "LINUX is obsolete".
+            Actually,
+            <a href="https://groups.google.com/forum/#!topic/minix3/cIRormiMRaA">the new post</a>
+            refreshed my memory, and I looked up some articles about Minix and Intel, leading to:
+            <a href="https://www.networkworld.com/article/3236064/servers/minix-the-most-popular-os-in-the-world-thanks-to-intel.html">MINIX — The most popular OS in the world, thanks to Intel</a>, which describes
+            the <a href="https://en.wikipedia.org/wiki/Intel_Management_Engine">Intel Management Engine</a>,
+            the source of my MINIX nightmare. The full description of
+            a secret processor running on most of our computers,
+            running Minix, with access to everything in the main CPU,
+            and a web server. Mystery solved!
+        </p>
+        <p>
+            Always willing to jump at an opportunity, the 
+            Free Software Foundation uses the Spectre/Meltdown issue
+            to <a href="https://www.fsf.org/blogs/sysadmin/the-management-engine-an-attack-on-computer-users-freedom">remind us</a>
+            that these patches are nice but there are already ways to
+            get data out of Intel's computers using the Intel
+            Management Engine. So, again.. deeply unsatisfying, and I
+            take comfort in the fact that I don't really care who
+            knows what about me. I just hope my bank account doesn't
+            get hacked cause my new annual lease agreement just
+            arrived - my rent is going up by like $120 next
+            month. WHAT THE HELL.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+</body>
+</html>
