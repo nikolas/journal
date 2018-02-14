@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Intersecting functions with JSXGraph
+        </title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+
+
+        <style>
+            .graph {
+            width: 500px;
+            height: 300px;
+            }
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="js/jsxgraphcore.js"></script>
+        <script src="js/custom.js"></script>
+        <script src="js/custom3.js"></script>
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">
+            Intersecting functions with JSXGraph
+        </h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2018-02-14" itemprop="datePublished">Wednesday, February 14, 2018</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            Recently, I've been getting more and more
+            into <a href="https://jsxgraph.org/">JSXGraph</a>. It's
+            an interactive geometry library that's been around for at
+            least 10 years, while still maintaining a good amount
+            activity and relevance. Which is impressive in the JavaScript
+            world.  It's developed at the University of Bayreuth
+            by Alfred Wassermann.
+        </p>
+        <p>
+            When
+            developing <a href="https://github.com/ccnmtl/econplayground.js">econplayground</a>,
+            some of the functionality requires two functions on a
+            graph: one linear, one non-linear.  For the linear
+            function, I can get away with just using a
+            JSXGraph <a href="https://jsxgraph.org/docs/symbols/Line.html">Line</a>,
+            and for the non-linear curve,
+            a <a href="https://jsxgraph.org/docs/symbols/Functiongraph.html">Functiongraph</a>.
+        </p>
+        <p>
+            JSXGraph also supports displaying the
+            <a href="https://jsxgraph.org/docs/symbols/Intersection.html">Intersection</a>
+            of two lines, calculated dynamically as those lines are
+            moved. You can see how I'm setting all this up <a href="js/custom.js">here</a>.
+        </p
+>
+        <p>
+            Line A is a JSXGraph Line and Line B is a Functiongraph:
+        </p>
+        <div class="graph" id="box1"></div>
+        <p>
+            In this example, the intersection point disappears
+            when dragging the orange line, or when dragging the blue
+            line to the left.
+        </p>
+        <p>
+            One workaround is to use a Functiongraph for both lines, suggested by a user on <a href="https://stackoverflow.com/questions/48773386/jsxgraph-intersection-between-functiongraph-and-line-disappears#comment84548863_48773386">StackOverflow</a>.
+        </p>
+        <p>
+            Here, both lines are Functiongraphs:
+        </p>
+        <div class="graph" id="box3"></div>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+</body>
+</html>
