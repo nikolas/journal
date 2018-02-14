@@ -107,9 +107,9 @@ $(document).ready(function() {
     var f = function(x) {
         var alpha = 0.3;
         return (1 - alpha) *
-            (1.4 *
-             1.6 ** alpha) *
-            (x ** -alpha);
+            (3.4 *
+             2.3 ** alpha) *
+            (x ** -alpha) - 1;
     };
 
     var l2 = board.create('functiongraph', [f, -10, 10], {
