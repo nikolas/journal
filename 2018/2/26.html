@@ -106,8 +106,10 @@
             pages and give them to the VisualEditor in the client's
             browser via XHR.  I was hesitant to even set it up,
             because that's a pretty big change in how edits happen
-            in the wiki.  I wouldn't have been able to get things
-            working without
+            in the wiki.
+        </p>
+        <p>
+            I wouldn't have been able to get things working without
             <a href="https://www.mediawiki.org/wiki/Parsoid/Troubleshooting">Parsoid's
             Troubleshooting page</a>.  Through my test curl requests,
             I was able to debug about three hurdles I ran into.
@@ -119,7 +121,7 @@
             specific user's access if the request comes from
             localhost, using
             the <a href="https://www.mediawiki.org/wiki/Extension:NetworkAuth">NetworkAuth</a>
-            extension.  This solution seemed less sketchy to me than
+            extension.  This solution seemed simpler and less sketchy to me than
             the first documented solution: forwarding the user's
             cookies to Parsoid.  I also needed to change Parsoid's default
             configuration for the path to MediaWiki's api.php,
@@ -134,8 +136,11 @@
             and some additional setup with certs.
         </p>
         <p>
-            The end result is that the Visual Editor looks really nice. It
-            will be interesting to see if this actually makes things easier for
+            The end result is that the Visual Editor looks really nice. 
+            And, personally I still expect to use the "Edit source" button
+            a lot to make quick edits, just cause I'm so used to it, and it's
+            faster. The Visual Editor takes a few seconds to load.
+            It will be interesting to see if this actually makes things easier for
             users, and if there is much of an added burden on maintenance as I
             make periodic updates to MediaWiki and Parsoid.
         </p>
