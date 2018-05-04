@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>How to use MediaWiki's API to export content</title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">How to use MediaWiki's API to export content</h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2018-05-04" itemprop="datePublished">Friday, May 4, 2018</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+            In 2011, I was working at a media agency in San Francisco,
+            developing an e-commerce application in PHP. I was the
+            sole, "lead" developer and all of the code had been
+            written by the agency's resourceful creative director. I
+            needed to add some new features to the platform, like
+            product reviews, payment system improvements, product
+            variations, and who knows, even a public API? This was
+            really "learning by doing," one of the many aspects of
+            progressive education that we promote at the CTL. I used
+            <a href="https://www.mediawiki.org/wiki/API:Main_page">MediaWiki's
+            API</a> to learn about how APIs work in web applications,
+            including related themes like rate limits, data formats,
+            authentication, etc. I put together an over-engineered API
+            in our PHP application (called QubixCart) that never
+            actually saw any use, but the process was fun and
+            educational.
+        </p>
+        <p>
+            Seven years later, I've found a reason to actually use
+            MediaWiki's API. You can use it to make a lightweight text
+            archive of parts of your wiki. You can use
+            <a href="https://github.com/nikolas/mediawiki-export">mediawiki-export</a>
+            to get a tree of text files from your wiki, based on a
+            list of categories.
+        </p>
+        <p>
+            MediaWiki's API was designed a while ago, and doesn't look
+            or act like the more user-friendly APIs that have since
+            been developed at sites like Twitter and GitHub. To find
+            out the details of the requests I needed, I used
+            <a href="https://www.mediawiki.org/wiki/Special:ApiSandbox">MediaWiki's
+            API Sandbox</a> - pretty much a trial-and-error process
+            until I got data that looked right, then parameterized
+            this and put it in my <code>wiki-export</code> script.
+        </p>
+        <p>
+            Finally, if your wiki is private, you'll have to take that
+            into account when running <code>wiki-export.py</code>. Here are
+            two options you have:
+            <ul>
+                <li>Set up oAuth authentication in <code>mediawiki-export.py</code>.</li>
+                <li>
+                    Run <code>mediawiki-export.py</code> on the same server as your
+                    wiki, and authenticate by whitelisting localhost via
+                    the <a href="https://www.mediawiki.org/wiki/Extension:NetworkAuth">NetworkAuth</a>
+                    extension.
+                </li>
+            </ul>
+            In my scenario, I went with the second option.
+        </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+</body>
+</html>
