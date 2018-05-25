@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>iptables and netfilter: a Linux firewall intro</title>
+        <meta name="author" content="Nik Nyby">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+    <article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="name">iptables and netfilter: a Linux firewall intro</h1>
+        <div style="display: none;" itemprop="author">Nik Nyby</div>
+        <time datetime="2018-05-25" itemprop="datePublished">Friday, May 25, 2018</time>
+    </header>
+
+    <div itemprop="articleBody">
+        <p>
+             I've turned over a new leaf in how I approach
+             security. I've <a href="http://www.columbia.edu/~njn2118/journal/2018/1/11.html">mentioned</a> in the past that I haven't
+             always understood, or given too much respect to the
+             security community. When vulnerabilities like <a href="http://heartbleed.com/">Heartbleed</a>
+             come and go, my rationale is, sure - obviously OpenSSL
+             should be patched. But what about all the other
+             vulnerabilities that we haven't found yet? It just seemed
+             like a lost cause.
+        </p>
+        <p>
+            The answer, and I'm probably late to the game for this but
+            hey - we all come to conclusions on our own time - is
+            "layered security". By combining multiple security efforts
+            all at once, individual security vulnerabilities become
+            less important, and more manageable.
+            It becomes kind of a game: What kind of network traffic do
+            you expect?  What kind of traffic can you automatically
+            reject, and at how many different points in our stack can
+            you reject it?
+        </p>
+        <p>
+            A firewall is more specifically a tool for filtering
+            network packets. It's best to configure it to just reject
+            anything you don't want before it reaches your
+            applications, even if you're not running any questionable
+            services. On Linux systems, the standard is pretty much
+            iptables, so I've learned how to set up and use that.
+        </p>
+        <p>
+            Note that <a href="https://netfilter.org/projects/nftables/index.html">nftables</a> has been developed as a successor to
+            iptables, but iptables is still way more widely-used than
+            nftables, so a working knowledge of iptables remains
+            valuable. In other words:
+        </p>
+        <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">OH: &quot;In any team you need a tank, a healer, a damage dealer, someone with crowd control abilities, and another who knows iptables&quot;</p>&mdash; Jérôme Petazzoni (@jpetazzo) <a href="https://twitter.com/jpetazzo/status/614851069508595712?ref_src=twsrc%5Etfw">June 27, 2015</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+        <p>
+            Besides,
+            it seems that <a href="https://cilium.io/blog/2018/04/17/why-is-the-kernel-community-replacing-iptables/">bpfilter</a> is the current craze in this world
+            over nftables. Ubuntu provides <a href="https://wiki.ubuntu.com/UncomplicatedFirewall">UFW</a>, a front-end to
+            nftables/iptables, (Ubuntu's answer to Red Hat's
+            <a href="http://www.firewalld.org/">firewalld</a>). ufw aims to be more intuitive to use than
+            iptables/nftables. My process has always been to start with the
+            basics, and then move on to the fancier things after
+            revisiting everything, so I chose to start with iptables.
+        </p>
+        <p>
+            How do you look at iptables rules?
+            <dl>
+                <dt><code>iptables -L -v</code></dt>
+                <dd>verbose listing</dd>
+
+                <dt><code>iptables -L</code></dt>
+                <dd>less verbose</dd>
+
+                <dt><code>iptables -S</code></dt>
+                <dd>compact</dd>
+            </dl>
+        </p>
+        <p>
+            You might see a rule like this:
+        </p>
+        <pre>-A INPUT -s 192.168.0.0/16 -p tcp -m tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT</pre>
+        <p>
+            This tells the system to accept packets coming in on port
+            22 within the 192.168.*.* range of IPs. Note the IP
+            address: iptables uses <a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a> notation for IP
+            addresses. This is a little less intuitive than something
+            like 127.127.*.*. Read 127.127.0.0/16 like "the first 16
+            bits of this address are significant, and the rest are
+            wildcards". So if you wanted to accept only the exact IP
+            127.127.42.12, that would be 127.127.42.12/32. Or
+            192.168.0.* would be 192.168.0.0/24.
+        </p>
+        <p>
+            There are three areas to hook into the iptables procedure:
+            INPUT, FORWARD, and OUTPUT. These are referred to as
+            "chains". Here's a nice ascii diagram showing the idea of
+            how they relate:
+        </p>
+        <pre>
+                          _____
+Incoming                 /     \         Outgoing
+       -->[Routing ]--->|FORWARD|------->
+          [Decision]     \_____/        ^
+               |                        |
+               v                       ____
+              ___                     /    \
+             /   \                  |OUTPUT|
+            |INPUT|                  \____/
+             \___/                      ^
+               |                        |
+                ----> Local Process ----
+            </pre>
+            <div>
+            &mdash; <a href="https://www.netfilter.org/documentation/HOWTO//packet-filtering-HOWTO-6.html">https://www.netfilter.org/documentation/HOWTO//packet-filtering-HOWTO-6.html</a>
+        </div>
+                    <p>
+                        So, the INPUT chain deals with packets getting
+                        sent to a local process, like sshd or
+                        nginx. That's what's most interesting right
+                        now - let's start blocking access! Each table
+                        has a policy: either ACCEPT or DROP. By
+                        default, everything is ACCEPT. It's
+                        <a href="https://www.netfilter.org/documentation/HOWTO//packet-filtering-HOWTO-11.html">recommended</a> to actually set things up so all
+                        policies are DROP, then open up only what's
+                        necessary. That's kind of extreme, but maybe
+                        I will start doing it that way in the future.
+                        As a first step, and to get things basically working,
+                        use a DROP policy for the INPUT table.
+                    </p>
+                    <p>
+                        To make these rules persistent, you save all
+                        your iptables rules to a file, and then when
+                        the network starts up, read that file with
+                        iptables-restore. Something like this:
+                    </p>
+<pre>
+# cat /etc/iptables.up.rules
+# Generated by iptables-save v1.6.2 on Thu May 17 13:10:56 2018
+*filter
+:INPUT DROP [313941:79232244]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [9333:868032]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-A OUTPUT -o lo -j ACCEPT
+-A OUTPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
+COMMIT
+# Completed on Thu May 17 13:10:56 2018
+</pre>
+<pre>
+# cat /etc/network/if-pre-up.d/iptables 
+#!/bin/sh
+/sbin/iptables-restore < /etc/iptables.up.rules
+</pre>
+                    <p>
+                        Here are some good resources:
+                        <ul>
+                            <li>
+                                <a href="https://www.netfilter.org/documentation/HOWTO//packet-filtering-HOWTO.html">Packet Filtering HOWTO</a>
+                                - A short overview from 2002, contains
+                                endearing anecdotes from that era, and
+                                useful general info. Many technical
+                                details have changed, but not the
+                                concepts.
+                            </li>
+                            <li>
+                                <a href="https://www.frozentux.net/iptables-tutorial/chunkyhtml/index.html">iptables tutorial</a>
+                                - Extremely in-depth conceptual info, lots of background knowledge around iptables itself like all the related layers of network protocols. Again, the technical details like kernel modules / loading iptables, have all changed but the concepts remain valuable and accurate.
+                            </li>
+                            <li>
+                                <a href="https://www.digitalocean.com/community/tutorials/iptables-essentials-common-firewall-rules-and-commands">Iptables Essentials: Common Firewall Rules and Commands</a>
+                                - An overview of some typical operations, to get a feel for how to work with iptables.
+                            </li>
+                            <li>
+                                <a href="https://lwn.net/Articles/747551/">BPF comes to firewalls</a>
+                                - Current state (2018) and direction of the Linux firewall system, aka netfilter.
+                            </li>
+                        </ul>
+                    </p>
+    </div>
+  </article>
+
+  <footer>
+      <a href="../../" title="Back">&larr;</a>
+  </footer>
+</body>
+</html>
