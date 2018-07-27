@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>How to animate graphical JavaScript programs</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+        <style type="text/css">
+            iframe {
+            margin-left: -250px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">How to animate graphical JavaScript programs</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2018-07-26" itemprop="datePublished">Thursday, July 26, 2018</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    You can now do even more in JavaScript than you
+                    ever could in Flash.
+                    Google and the
+                    <a href="https://en.wikipedia.org/wiki/Chrome_V8">V8
+                    team</a> made new technology that pressured
+                    all mainstream browsers to make JavaScript as
+                    efficient as it can be. The performance
+                    improvements, which are something like 100 times
+                    the speed of old JavaScript engines from pre-2008, have
+                    allowed for the development of new rendering
+                    standards
+                    like <a href="https://www.khronos.org/webgl/">WebGL</a>
+                    and <a href="https://www.w3.org/TR/2dcontext/">Canvas</a>.
+                    It's now even typical for say, graphics
+                    <a href="https://en.wikipedia.org/wiki/Demoscene">demos</a>
+                    on <a href="http://www.pouet.net/">Pouet</a> to be
+                    made in three.js alongside all the contributions
+                    for c64 and Amiga that have been made for years.
+                    These events all helped prompt my own decision to
+                    just focus on web development rather than get
+                    further into iOS development, when I was trying
+                    that out in 2012.
+                </p>
+                <p>
+                    So, this technology is just waiting to be used,
+                    but how do you actually put things together in a
+                    simple, organized way?  Starting from scratch
+                    (because when I start anywhere else I don't
+                    learn as much), you can set up a run loop to
+                    animate programs
+                    using <a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval">setInterval()</a>:
+                </p>
+<pre>
+setInterval(function() {
+    moveSomethingOnTheScreen();
+}, 200);
+</pre>
+                <p>
+                    Maybe you want your moveSomething method to be a
+                    function of some "time" value that's incremented
+                    regularly. That way, you can control the speed of
+                    the motion, and everything you want to animate
+                    will use this single time value to determine
+                    where they should appear:
+                </p>
+<pre>
+var time = 0;
+
+setInterval(function() {
+    moveSomethingOnTheScreen(time);
+
+    time += 0.01;
+}, 200);
+</pre>
+                <p>
+                    The 200 I'm passing in to setInterval means "run
+                    this every 200 milliseconds". It's kind of
+                    arbitrary... you can increase or decrease it to
+                    whatever you want and see what happens. You can
+                    also let the browser decide what this value should be
+                    with
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame">requestAnimationFrame()</a>.
+                </p>
+<pre>
+var time = 0;
+
+function moveSomethingOnTheScreen(time) {
+    // move a DOM element or something
+
+    time += 0.01;
+
+    requestAnimationFrame(moveSomethingOnTheScreen);
+};
+
+requestAnimationFrame(moveSomethingOnTheScreen);
+</pre>
+                <p>
+                    If you want to stop the animation, setInterval and
+                    requestAnimationFrame both return an ID that you
+                    can call clearInterval() or cancelAnimationFrame()
+                    on. Even when you're using comprehensive drawing
+                    frameworks
+                    like <a href="https://threejs.org/">three.js</a>
+                    or <a href="http://www.pixijs.com/">pixi.js</a>,
+                    handling the animation step with
+                    requestAnimationFrame() is still the norm.
+                </p>
+                <p>
+                    That's all you need for animation - but what
+                    do you want to animate? You can hook this run loop
+                    up to any visualization that JavaScript can reach:
+                    graphs, math visualizations, 3D scenes, etc.
+                    Libraries like these don't render HTML dom elements -
+                    that's too limiting for graphics. Most of them
+                    render with Canvas or SVG.
+                </p>
+                <p>
+                    The HTML <code>&lt;canvas&gt;</code> element is fun to mess
+                    around with, and there's a lot you can do with
+                    just that. In fact, WebGL all happens through the
+                    Canvas element, so whatever you want to do, you
+                    should learn the basics of Canvas.
+                    Mozilla's 
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial">Canvas tutorial</a>
+                    and
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">API docs</a> are helpful.
+                    When using Canvas, keep in mind that the browser
+                    only thinks of it as some arbitrary bitmap - a
+                    series of colored pixels: any shapes you draw sort
+                    of slip out of your fingers and into the bitmap.
+                    You can't do
+                    <code>var circle = canvasContext.arc();</code> and
+                    then move that circle around
+                    because <code>arc()</code>, along with all the
+                    drawing methods, are void type and don't return
+                    anything. This constraint is fun to work around
+                    because anything is still possible with
+                    Canvas. But if you need to treat parts of your
+                    graphics as objects because they're interactive,
+                    like responding to mouse movement, that's where it
+                    quickly gets too complicated because there's too
+                    much to keep track of, including UX subtleties
+                    that you shouldn't be expected to handle. In that
+                    case, I recommend using a Canvas-based framework
+                    like Pixi.js.
+                </p>
+                <p>
+                    I've been working on porting these
+                    <a href="http://astro.unl.edu/animationsLinks.html">astronomy visualizations</a>
+                    from Flash to JavaScript
+                    (<a href="https://github.com/ccnmtl/astro-interactives">astro-interactives</a>). All
+                    this new web technology is well-suited for these
+                    kinds of things. I'm using React because from what
+                    I've seen, the code just becomes simpler and more
+                    reliable when you're not manually manipulating DOM
+                    elements. React is a large library though - you
+                    can get a similar development experience by
+                    combining <a href="https://github.com/adamhaile/S">S.js</a>
+                    with JSX.
+                </p>
+                <p>
+                    So to show how you can actually use the animation
+                    example above, here's the animate function that
+                    runs in a loop to animate a three.js scene.  
+
+                    You can also see how the sky color is dynamic:
+                    getSkyColor() returns a blue color when the sun is
+                    above the horizon, and black when it's beneath it.
+                </p>
+<pre>
+animate() {
+    this.sun.position.x = 50 * Math.cos(this.props.observerAngle);
+    this.sun.position.z = 50 * Math.sin(this.props.observerAngle);
+    this.sun.rotation.y = -this.props.observerAngle +
+                          THREE.Math.degToRad(90);
+
+    this.skyMaterial.color.setHex(this.getSkyColor(this.props.observerAngle));
+
+    this.moon.position.x = 50 * Math.cos(this.props.moonObserverPos);
+    this.moon.position.z = 50 * Math.sin(this.props.moonObserverPos);
+    this.moon.rotation.y = -this.props.moonObserverPos + THREE.Math.degToRad(90);
+
+    this.renderScene();
+    this.frameId = window.requestAnimationFrame(this.animate);
+}
+</pre>
+<small>From <code>lunar-phase-simulator/HorizonView.jsx</code></small>
+                <p>
+                    The sun and moon move in a circular orbit created
+                    by passing in radian values to sine and cosine
+                    functions.  I don't know the math offhand - I just
+                    work through trial and error. The observerAngle
+                    and moonObserverPos values are being passed in
+                    from the main React component in main.jsx, and
+                    are controlled and incremented from there, in
+                    their own animate loop:
+                </p>
+<pre>
+animate() {
+    const me = this;
+    this.setState(prevState => ({
+        observerAngle: me.incrementAngle(prevState.observerAngle),
+        moonPhase: me.incrementMoonPhaseAngle(prevState.moonPhase),
+        moonObserverPos: me.getMoonObserverPos(
+            prevState.observerAngle, prevState.moonPhase)
+    }));
+    this.frameId = requestAnimationFrame(this.animate);
+}
+</pre>
+<small>From <code>lunar-phase-simulator/main.jsx</code></small>
+                <p>
+                    So, through methodical organization and trial and
+                    error, you can build these pieces up to make any
+                    sort of visualization as a function of the same
+                    data, tied together in sync. Here's an iframe of
+                    the Lunar Phase Simulator that's still in
+                    progress. The animation basics are in place - at
+                    the moment I need to fix some problems with the
+                    mouse interactions.
+                </p>
+            </div>
+        <iframe 
+             width="1024"
+             height="768"
+             src="https://ccnmtl.github.io/astro-interactives/lunar-phase-simulator/"></iframe>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
