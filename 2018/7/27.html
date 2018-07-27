@@ -19,7 +19,7 @@
             <header>
                 <h1 itemprop="name">How to animate graphical JavaScript programs</h1>
                 <div style="display: none;" itemprop="author">Nikolas Nyby</div>
-                <time datetime="2018-07-27" itemprop="datePublished">Thursday, July 27, 2018</time>
+                <time datetime="2018-07-27" itemprop="datePublished">Friday, July 27, 2018</time>
             </header>
 
             <div itemprop="articleBody">
@@ -90,7 +90,7 @@ setInterval(function() {
 <pre>
 var time = 0;
 
-function moveSomethingOnTheScreen(time) {
+function moveSomethingOnTheScreen() {
     // move a DOM element or something
 
     time += 0.01;
@@ -153,6 +153,7 @@ requestAnimationFrame(moveSomethingOnTheScreen);
                 <p>
                     I've been working on porting these
                     <a href="http://astro.unl.edu/animationsLinks.html">astronomy visualizations</a>
+                    originally developed at the University of Nebraska
                     from Flash to JavaScript
                     (<a href="https://github.com/ccnmtl/astro-interactives">astro-interactives</a>). All
                     this new web technology is well-suited for these
@@ -169,7 +170,7 @@ requestAnimationFrame(moveSomethingOnTheScreen);
                     example above, here's the animate function that
                     runs in a loop to animate a three.js scene.  
 
-                    You can also see how the sky color is dynamic:
+                    You can see how the sky color is dynamic:
                     getSkyColor() returns a blue color when the sun is
                     above the horizon, and black when it's beneath it.
                 </p>
@@ -217,12 +218,12 @@ animate() {
                 <p>
                     So, through methodical organization and trial and
                     error, you can build these pieces up to make any
-                    sort of visualization as a function of the same
-                    data, tied together in sync. Here's an iframe of
-                    the Lunar Phase Simulator that's still in
-                    progress. The animation basics are in place - at
-                    the moment I need to fix some problems with the
-                    mouse interactions.
+                    sort of visualization as a function of a few
+                    pieces of core data, tied together in sync. Here's
+                    an iframe of the Lunar Phase Simulator that's
+                    still in progress. The animation basics are in
+                    place - at the moment I need to fix some problems
+                    with the mouse interactions.
                 </p>
             </div>
         <iframe 
