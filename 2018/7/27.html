@@ -188,7 +188,7 @@ animate() {
     this.moon.rotation.y = -this.props.moonObserverPos + THREE.Math.degToRad(90);
 
     this.renderScene();
-    this.frameId = window.requestAnimationFrame(this.animate);
+    this.frameId = requestAnimationFrame(this.animate);
 }
 </pre>
 <small>From <code>lunar-phase-simulator/HorizonView.jsx</code></small>

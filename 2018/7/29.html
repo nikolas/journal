@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>How to use your own Linux kernel</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">How to use your own Linux kernel</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2018-07-29" itemprop="datePublished">Sunday, July 29, 2018</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    If you're using Linux, using your own Linux kernel
+                    has a lot of benefits that might be helpful to
+                    you. And once things are set up on your system,
+                    keeping up to date is as straightforward as doing
+                    a periodic <code>sudo apt upgrade</code>.
+                </p>
+                <p>
+                    If you're using a newer laptop, updating your
+                    kernel can solve lots of issues because the
+                    hardware is still new, and the kernel developers
+                    are still figuring out how to work with the new
+                    hardware. If your touchpad or wireless card is
+                    acting weird on a newer laptop, sometimes just
+                    trying the newest kernel solves the problem.
+                </p>
+                <p>
+                    Most distributions have their own version of the
+                    kernel maintained by the distribution. Ubuntu and Red
+                    Hat fork a major kernel version like 4.9, and
+                    stick with that for some version of their
+                    distribution, applying security updates while that
+                    distribution release is supported. That doesn't
+                    mean you can't use a newer kernel with that
+                    distribution. Kernel updates have all sorts of
+                    driver updates and internal changes, but they're
+                    careful not to break existing functionality with
+                    userspace.
+                </p>
+                <p>
+                    <a href="https://git.kernel.org/">git.kernel.org</a>
+                    has a bunch of different forks of the kernel.
+                    You probably just want the main "stable" one 
+                    <a href="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/">here</a>.
+                </p>
+<pre>
+git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git linux-stable
+cd linux-stable
+</pre>
+                <p>
+                    That repository follows the latest "mainline"
+                    version
+                    on <a href="https://www.kernel.org/">kernel.org</a>.
+                    You can also follow an even more well-tested version than that
+                    by following one of the branches, like <code>linux-4.17.y</code>:
+                </p>
+<pre>
+git checkout linux-4.17.y
+</pre>
+                <p>
+                    So now that you have the repository cloned, here's
+                    how you can set up the kernel configuration. This is an
+                    essential step that makes it work on your system.
+                    The easiest way to do this is just base your
+                    configuration off of the one that's already
+                    working on the kernel you're running. Some
+                    distributions rely on different kernel options
+                    than others.
+                </p>
+                <p>
+                    Find your running kernel configuration. Some distributions
+                    put this in <code>/boot</code>, and some kernels have this
+                    available in their <code>/proc</code> filesystem at
+                    <code>/proc/config.gz</code>.
+                    <ul>
+                        <li>Does <code>ls /boot/config*</code> return anything?</li>
+                        <li><code>ls /proc/config*</code></li>
+                    </ul>
+                    Sometimes the kernel's config can be
+                    extracted from the kernel file
+                    with <code>scripts/extract-ikconfig</code>. I've
+                    never used this but you can find info about it
+                    somewhere.
+                    Once you've found your configuration, copy the
+                    config to your repository's kernel config:
+                </p>
+<pre>
+cp /boot/config-4.16.0-2-amd64 .config
+</pre>
+                <p>
+                    Take a look at this file if you want
+                    with <code>less</code> &mdash; it's just a bunch of
+                    CONFIG settings mostly set to "y", "m", or "n".
+                    No one edits this manually &mdash; you would use some
+                    tool like <code>make nconfig</code> to make
+                    changes to this, but you don't need to do that
+                    yet.
+                </p>
+                <p>
+                    Kernel config options are added and removed with
+                    each kernel release, so these options won't match up 
+                    exactly, but they're fine to start with and there's
+                    the <code>make oldconfig</code> target that's used
+                    to smooth out the differences and make any relatively
+                    recent config compatible with the current one.
+                </p>
+<pre>
+make oldconfig
+</pre>
+                <p>
+                    If there are new config options available, make
+                    oldconfig will ask you what you want to do. You
+                    can probably always just choose the default
+                    answer, by pressing Enter at each prompt.
+                </p>
+                <p>
+                    At this point you can make the kernel and install
+                    it.
+                </p>
+<pre>
+make -j2
+</pre>
+                <p>
+                    If you have an 8-core processor or something 
+                    (check that with <code>less /proc/cpuinfo</code>)
+                    you can change this to <code>make -j8</code>,
+                    or <code>make -j6</code> if you don't want the
+                    compile operation to slow down whatever you're
+                    doing.
+                </p>
+                <p>
+                    Once that's done, you can install the kernel:
+                </p>
+<pre>
+sudo make modules_install install
+</pre>
+                <p>
+                    <code>make modules_install</code> makes a
+                    directory for this kernel version
+                    in <code>/lib/modules</code> and copies the module
+                    files there. <code>make install</code> copies the
+                    main kernel file &mdash; vmlinuz &mdash;
+                    to <code>/boot</code>, and maybe some others as
+                    well. It also updates your grub configuration
+                    to point to this new kernel. This part of the
+                    guide is probably biased towards Debian/Ubuntu.
+                    I'm not sure how different things work here on
+                    other distributions.
+                </p>
+                <p>
+                    Now you can reboot, and see how things are working.
+                </p>
+                <p>
+                    If you're curious, you can look at all the config
+                    options in the kernel with <code>make nconfig</code>.
+                    This is an ncurses interface that updates
+                    the <code>.config</code> file on the Save (F6) command.
+                    You exit with F9 or ctrl-C, navigate around the options
+                    with the arrow keys, and you can search config
+                    strings with F8. Press <code>y</code>, <code>m</code>,
+                    or <code>n</code> on an option to enable it, compile
+                    it as a module, or disable it.
+                    Pressing <code>?</code> on a config option shows
+                    its help. Some of these docs are more helpful
+                    than others.
+                </p>
+                <p>
+                    If you're on a laptop, one good option to change
+                    is CPU Frequency Scaling. Go into Power
+                    Management, then CPU Frequency Scaling, then
+                    update Default CPUFreq Governor to conservative.
+                    That makes the laptop's battery last longer.
+                </p>
+                <p>
+                    To stay up to date, go into
+                    your <code>linux-stable</code> directory and run a
+                    few commands:
+                </p>
+<pre>
+git pull
+make oldconfig
+make -j2
+sudo make modules_install install
+</pre>
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
