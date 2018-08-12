@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>A reset button in ReactJS</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">A reset button in ReactJS</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2018-08-11" itemprop="datePublished">Saturday, August 11, 2018</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    React is a great abstraction over the DOM. It's
+                    best used to implement a self-contained world
+                    derived from a central state.
+                    For example, if you want to make a reset button,
+                    you can do something like this:
+                </p>
+                <pre>
+class MainComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        this.initialState = {
+            someValueThatTheUserChanges: 7,
+            abc: 'a'
+        };
+        this.state = this.initialState;
+    }
+    onResetClick(e) {
+        e.preventDefault();
+        this.setState(this.initialState);
+    }
+}
+                </pre>
+                <p>
+                    <code>this.state</code> is a special attribute in
+                    React that interacts with
+                    its <code>setState()</code> method to keep
+                    everything in sync. <code>this.initialState</code>
+                    is just an arbitrary place I'm storing the initial
+                    value of the world.  Connect
+                    the <code>onResetClick</code> handler to a button
+                    like this:
+                </p>
+                <pre>
+&lt;button type="button" onClick={this.onResetClick.bind(this)}&gt;Reset&lt;/button&gt;
+                </pre>
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
