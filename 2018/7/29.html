@@ -20,7 +20,7 @@
             <div itemprop="articleBody">
                 <p>
                     If you're using Linux, using your own Linux kernel
-                    has a lot of benefits that might be helpful to
+                    has benefits that might be helpful to
                     you. And once things are set up on your system,
                     keeping up to date is as straightforward as doing
                     a periodic <code>sudo apt upgrade</code>.
@@ -28,7 +28,7 @@
                 <p>
                     If you're using a newer laptop, updating your
                     kernel can solve lots of issues because the
-                    hardware is still new, and the kernel developers
+                    hardware is still new, and kernel developers
                     are still figuring out how to work with the new
                     hardware. If your touchpad or wireless card is
                     acting weird on a newer laptop, sometimes just
@@ -46,6 +46,14 @@
                     driver updates and internal changes, but they're
                     careful not to break existing functionality with
                     userspace.
+                </p>
+                <p>
+                    Cloning the kernel repository downloads a few
+                    gigabytes of data. If you're just planning on
+                    making the kernel as a one-time thing, or for any
+                    reason don't need the whole git repo, just download
+                    one of the kernel tarballs from kernel.org, and
+                    follow the process below without the git commands.
                 </p>
                 <p>
                     <a href="https://git.kernel.org/">git.kernel.org</a>
@@ -182,6 +190,11 @@ sudo make modules_install install
                     That makes the laptop's battery last longer.
                 </p>
                 <p>
+                    The kernel's Makefile contains more commands
+                    you might be interested in. Run <code>make help</code> to
+                    see them all.
+                </p>
+                <p>
                     To stay up to date, go into
                     your <code>linux-stable</code> directory and run a
                     few commands:
@@ -192,6 +205,19 @@ make oldconfig
 make -j2
 sudo make modules_install install
 </pre>
+                <p>
+                    <a href="https://kernelnewbies.org/">KernelNewbies</a>
+                    is a good site with some general info about all
+                    this. 
+                    They have a similar guide you can use as a
+                    supplement to this one at
+                    their <a href="https://kernelnewbies.org/KernelBuild">KernelBuild</a>
+                    page.
+                    Their <a href="https://kernelnewbies.org/LinuxChanges">LinuxChanges</a>
+                    page summarizes the kernel changelog into
+                    something nice and readable, but it's not always
+                    up to date with the latest release.
+                </p>
             </div>
 
         </article>
