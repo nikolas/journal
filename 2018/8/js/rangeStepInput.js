@@ -1,7 +1,6 @@
 var savedValue = 25;
 
-function handleRangeInput() {
-    var input = this.event.target;
+function handleRangeInput(input) {
     var step = new Number(input.step);
     var newVal = new Number(input.value);
     var oldVal = savedValue;

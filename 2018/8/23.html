@@ -52,20 +52,19 @@
                        min="0"
                        max="100"
                        value="25"
-                       oninput="handleRangeInput()" />
+                       oninput="handleRangeInput(this)" />
 <pre>
 &lt;input type="range" 
     step="1"
     min="0"
     max="100"
-    value="50"
-    oninput="handleRangeInput()" /&gt;
+    value="25"
+    oninput="handleRangeInput(this)" /&gt;
 </pre>
 <pre>
-var savedValue = 50;
+var savedValue = 25;
 
-function handleRangeInput() {
-    var input = this.event.target;
+function handleRangeInput(input) {
     var step = new Number(input.step);
     var newVal = new Number(input.value);
     var oldVal = savedValue;
@@ -83,6 +82,11 @@ function handleRangeInput() {
                     Dragging the knob doesn't behave perfectly, but
                     it's usable. It might be possible to improve the
                     dragging behavior with more code.
+                </p>
+                <p>
+                    This method was pointed out by zcorpan on
+                    StackOverflow: <a href="https://stackoverflow.com/a/51988783/173630">https://stackoverflow.com/a/51988783/173630</a>,
+                    I've just adapted it for my use case.
                 </p>
                 <p>
                     If you're using React, this
