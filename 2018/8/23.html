@@ -52,23 +52,49 @@
                        min="0"
                        max="100"
                        value="25"
-                       oninput="handleRangeInput(this)" />
+                       onmousedown="onMouseDown()"
+                       onmouseup="onMouseUp()"
+                       onmousemove="onMouseMove()"
+                       oninput="onInput(this)" />
 <pre>
 &lt;input type="range" 
     step="1"
     min="0"
     max="100"
     value="25"
-    oninput="handleRangeInput(this)" /&gt;
+    onmousedown="onMouseDown()"
+    onmouseup="onMouseUp()"
+    onmousemove="onMouseMove()"
+    oninput="onInput(this)" /&gt;
 </pre>
 <pre>
 var savedValue = 25;
+var isMouseDown = false;
+var isDragging = false;
 
-function handleRangeInput(input) {
+function onMouseDown() {
+    isMouseDown = true;
+}
+function onMouseUp() {
+    isMouseDown = false;
+    isDragging = false;
+}
+function onMouseMove() {
+    if (isMouseDown) {
+        isDragging = true;
+    }
+}
+
+function onInput(input) {
     var step = new Number(input.step);
     var newVal = new Number(input.value);
     var oldVal = savedValue;
-    if (oldVal) {
+    if (
+        // Disable the oninput filter with the user is dragging
+        // the slider's knob.
+        !(isMouseDown && isDragging) &&
+            oldVal
+    ) {
         input.value = (newVal > oldVal) ?
             oldVal + step : oldVal - step;
     }
@@ -77,23 +103,23 @@ function handleRangeInput(input) {
 }
 </pre>
                 <p>
-                    Notice that clicking right and left of the knob
-                    always steps the value by the same increment now.
-                    Dragging the knob doesn't behave perfectly, but
-                    it's usable. It might be possible to improve the
-                    dragging behavior with more code.
+                    This method was pointed out by zcorpan on
+                    StackOverflow: <a href="https://stackoverflow.com/a/51988783/173630">stackoverflow.com/a/51988783/173630</a>,
+                    I've just adapted it for my use case.
                 </p>
                 <p>
-                    This method was pointed out by zcorpan on
-                    StackOverflow: <a href="https://stackoverflow.com/a/51988783/173630">https://stackoverflow.com/a/51988783/173630</a>,
-                    I've just adapted it for my use case.
+                    The <code>onInput()</code> function is the key
+                    method that limits the input. I added the
+                    mousedown, mouseup, and mousemove handlers later
+                    to track the dragging state. That makes the slider
+                    behave normally if you drag the knob.
                 </p>
                 <p>
                     If you're using React, this
                     global <code>savedValue</code> variable can be
                     handled by state/props, and connected to the
                     input's value. See the <code>RangeStepInput</code>
-                    React component here for the details: <a href="https://github.com/ccnmtl/astro-interactives/pull/57/files">https://github.com/ccnmtl/astro-interactives/pull/57/files</a>
+                    React component here for the details: <a href="https://github.com/ccnmtl/astro-interactives/blob/master/small-angle-demo/src/RangeStepInput.jsx">small-angle-demo/src/RangeStepInput.jsx</a>
                 </p>
 
             </div>
