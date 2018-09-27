@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>How to make an analog clock (Part 1)</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">How to make an analog clock (Part 1)</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2018-09-27" itemprop="datePublished">Thursday, September 27, 2018</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    Over the past few months that I've been working
+                    with graphical programming, it's been fun to get
+                    insight into how the real world works, i.e., how
+                    things are visually laid out and move around.
+                    Sometimes it reminds me of a book I liked reading
+                    when I was younger,
+                    <a href="https://en.wikipedia.org/wiki/The_Way_Things_Work">The
+                    Way Things Work</a>.  The book is all
+                    illustrations, so you don't actually read it so
+                    much as pore over the details in all its drawings.
+                </p>
+                <p>
+                    This post goes over how to program an analog-style
+                    clock like this one, with draggable minute and
+                    hour hands.
+                </p>
+                <div style="text-align: center;">
+                    <img style="margin: 0 auto;" src="img/clock.gif" alt="an animated clock" />
+                </div>
+                <p>
+                    The clock I'm making is actually a 24-hour clock,
+                    not a 12-hour clock, but all the movement is the
+                    same.
+                </p>
+                <p>
+                    First of all, separate out what moves in this
+                    scene from what always stays the same. There are
+                    really three different things to think about here:
+                    the clock face, the minute hand, and the hour
+                    hand.
+                    If you don't already have some image to use as the
+                    clock face, search for one online or make one in
+                    <a href="https://inkscape.org/en/">Inkscape</a>
+                    (There's really no reason to use Adobe's stuff).
+                </p>
+                <p>
+                    Here's the clock face I'm using:
+                </p>
+                <div style="text-align: center;">
+                    <img style="margin: 0 auto;" src="img/clockface.png" alt="a clock face" />
+                </div>
+                <p>
+                    Also, I'm using <a href="http://www.pixijs.com/">Pixi</a> instead
+                    of <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">Canvas</a>
+                    for two reasons: I need to treat the clock hands
+                    like objects (rotating them independently of each
+                    other), and also I want to respond to mouse
+                    movements and dragging behavior.
+                </p>
+                <p>
+                    In the code, the first thing to do is make the
+                    clock's DOM container element and put the clock
+                    face in it.  Once the DOM is ready to be
+                    interacted with (i.e., in
+                    the <code>componentDidMount()</code> callback if
+                    you're using React), create the PIXI.Application,
+                    load the clock face image, and start the initial
+                    drawing procedure.
+                </p>
+<pre>
+componentDidMount() {
+    const me = this;
+
+    const timePickerApp = new PIXI.Application({
+        backgroundColor: 0xffffff,
+        width: 200,
+        height: 200,
+        sharedLoader: true,
+        sharedTicker: true,
+        forceCanvas: true
+    });
+    this.timePickerApp = timePickerApp;
+    this.timePicker.appendChild(timePickerApp.view);
+
+    this.loader.load((loader, resources) => {
+        me.resources = resources;
+
+        me.drawClockScene(timePickerApp, resources.clock);
+    });
+}
+</pre>
+                <p>
+                    Now let's make the hands of the clock. Here are some
+                    relevant parts of a function called
+                    from <code>componentDidMount()</code>.
+                    Don't be intimidated by all the rigmarole
+                    here... I know it looks awkward but it all comes
+                    from trial and error, building things up from the
+                    basics. For example, through putting this together
+                    I found that I need to use a PIXI.Container, even
+                    though it only contains one object, just because of
+                    a quirk with Pixi that makes Containers easier to
+                    rotate.
+                </p>
+                <pre>
+drawClockScene(app, resource) {
+    const center = new PIXI.Point(
+        app.view.width / 2, app.view.height / 2);
+
+    // Draw the minute hand
+    // Put it in a PIXI.Container so it's easier to rotate.
+    const minuteContainer = new PIXI.Container();
+    minuteContainer.interactive = true;
+    minuteContainer.buttonMode = true;
+    const minuteHand = new PIXI.Graphics()
+                             .beginFill(0x666666)
+                             .drawRoundedRect(
+                                 0, 0,
+                                 4, bg.height / 2.3,
+                                 4);
+    minuteContainer.addChild(minuteHand);
+    minuteContainer.position.set(this.center.x, this.center.y);
+    minuteContainer.pivot = new PIXI.Point(2, 5);
+    minuteContainer.rotation = Math.PI;
+    app.stage.addChild(minuteContainer);
+    this.minuteHand = minuteContainer;
+}
+                </pre>
+                <p>
+                    The code for drawing the hour hand is pretty
+                    much the same, so I'm not going to include it
+                    here. There's a link to the full source code at
+                    the end.
+                </p>
+                <p>
+                    When you start programming any sort of circular
+                    motion like this, you quickly learn the significance
+                    of <a href="https://en.wikipedia.org/wiki/Pi">Pi</a>,
+                    and how to work with it along with the related
+                    <a href="https://en.wikipedia.org/wiki/Sine">Sine</a>
+                    and <a href="https://en.wikipedia.org/wiki/Cosine">Cosine</a>
+                    functions.
+                </p>
+                <p>
+                    You can represent angles in degrees or radians.
+                    Sometimes it's actually more convenient to work
+                    with radians instead of degrees, it doesn't really
+                    matter - I switch between these unit types all the
+                    time in the code. Just remember that:
+                </p>
+                <p>
+                    A full circle == Pi * 2 radians == 360 degrees
+                </p>
+                <p>
+                    So how would you display the minute hand at the
+                    correct rotation? There are 60 minutes in an hour,
+                    which the minute hand displays as a full
+                    circle. So you can treat each minute as one
+                    sixtieth of Pi * 2.
+                </p>
+                <p>
+                    Here in React code, when the time state
+                    changes, the minute and hour hands are updated to
+                    reflect that state. <code>getMinutes()</code> returns the
+                    current time's minute (0 to 59), and the angle of
+                    a single minute can be written as one sixtieth of Pi
+                    * 2. There's also an offset of -Pi at the end of
+                    the equation, just because of a particularity in
+                    where the minute hand's initial position is.
+                </p>
+                <p>
+                    The hour hand moves in a simlar way. You can
+                    replace the 24 below with 12 for a 12-hour clock.
+                </p>
+<pre>
+componentDidUpdate(prevProps) {
+    if (prevProps.dateTime !== this.props.dateTime) {
+        // Update the clock.
+        const minutes = this.props.dateTime.getMinutes();
+        this.minuteHand.rotation = (minutes / 60) * (Math.PI * 2)
+                                 - Math.PI;
+
+        const hours = this.props.dateTime.getHours();
+        this.hourHand.rotation = ((hours + (minutes / 60)) / 24) * (
+            Math.PI * 2) - Math.PI;
+    }
+}
+</pre>
+                <p>
+                    Making these clock hands draggable by the user is
+                    a whole new challenge. I'll go over that in a
+                    separate post because there's a lot more to it,
+                    and required a lot more learning on my part.
+                </p>
+                <p>
+                    In the mean time, you can see the final result of
+                    this clock in
+                    the <a href="https://ccnmtl.github.io/astro-interactives/sun-motion-simulator/">Motions
+                    of the Sun Simulator</a>, and the source code is
+                    here:
+                    <a href="https://github.com/ccnmtl/astro-interactives/blob/master/sun-motion-simulator/src/Clock.jsx">Clock.jsx</a>.
+                    Again, there's a lot of idiosyncratic code
+                    involved to make all the fine-tunings correct. But
+                    I hope this is helpful for anyone else making a
+                    graphical analog clock, or just as a re-usable
+                    React component.
+                </p>
+
+<!--
+                <h3>Note about tool and language choice</h3>
+                <p>
+                    I see developers put a lot of importance into the
+                    languages, tools, and frameworks they use. I've
+                    been working on another post just focusing on that
+                    topic, but in general I think that all this
+                    discussion and attention to detail is better spent
+                    on what you're actually making.  Five years ago, I
+                    probably would've chosen to make this clock in
+                    <a href="https://www.sencha.com/products/extjs/#overview">Ext.JS</a>
+                    and
+                    <a href="http://www.pixijs.com/">Pixi</a> instead
+                    of <a href="https://reactjs.org/">React</a> and
+                    Pixi, because React wasn't around then.  The "best
+                    tools for the job" mentality doesn't apply as much
+                    as developers want it to: You can always use a
+                    different code editor, IDE, a different framework,
+                    etc. and get the same results. It's just a matter
+                    of translation between different environments -
+                    computers all behave the same way, with the same
+                    basic operations, regardless of the syntactic sugar
+                    the developer chooses to use.
+                </p>
+                <p>
+                    How should you choose what language to use? It
+                    only depends on how you want users to access and
+                    use the program. If you're making something
+                    interactive on the web, there's no reason not to
+                    use JavaScript. An iOS or Android app? Use
+                    Objective-C or whatever Android uses (Java?). etc.
+                </p>
+                <p>
+                    This rule of thumb works in my experience, which
+                    is limited to small, self-contained applications.
+                    If you're working on something with hundreds of
+                    developers on it, maybe there's something to say
+                    for using TypeScript, the fancier features of ES6,
+                    making your own virtual machine
+                    like <a href="https://hhvm.com/">HHVM</a>, who
+                    knows. I can't really say. Basically, I love
+                    functional programming as much as anyone who's
+                    used Haskell, but for putting together a small, 
+                   interactive UI application, there's no problem
+                    with using the standard languages that work in the
+                    same <a href="https://en.wikipedia.org/wiki/Imperative_programming">imperative paradigm</a>
+                    as the hardware beneath all the abstractions.
+                </p>
+-->
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
