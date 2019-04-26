@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>How to make a draggable dialog box in JavaScript</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+        <link rel="stylesheet" href="jswindow.css" type="text/css" />
+        <script src="jswindow.js"></script>
+    </head>
+    <body>
+
+        <div class="window" id="window">
+            <div class="window-bar">
+                <div>Window Title</div>
+                <span class="window-close">
+                    <svg viewport="0 0 12 12" version="1.1"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <line x1="1" y1="11"
+                              x2="11" y2="1"
+                              stroke="black"
+                              strokeWidth="2"/>
+                        <line x1="1" y1="1"
+                              x2="11" y2="11"
+                              stroke="black"
+                              strokeWidth="2"/>
+                    </svg>
+                </span>
+            </div>
+            <div class="window-body">
+                Window body.
+
+                <img width="300" height="150.6" src="Cat_black.svg" />
+            </div>
+        </div>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">How to make a draggable dialog box in JavaScript</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2019-04-26" itemprop="datePublished">Friday, April 26, 2019</time>
+            </header>
+
+
+
+            <div itemprop="articleBody">
+                <p>
+                    Let's make a draggable dialog box in
+                    JavaScript. I've already made it in React, but
+                    I'll make it in plain JavaScript here to
+                    illustrate that frameworks aren't really necessary
+                    for this kind of programming. But, they can be
+                    nice to help with organization. <a href="https://getbootstrap.com/docs/4.1/components/modal/">Bootstrap</a> 
+                    already has a nice modal window component, but
+                    the user can't move this one around the screen.
+                    So let's make a new one from scratch.
+                </p>
+
+                <p>
+                    The DOM is pretty similar to what you'd do in Bootstrap.
+                    The svg here is for the X button to close the window.
+                </p>
+
+<pre>
+    &lt;div class="window" id="window"&gt;
+        &lt;div class="window-bar"&gt;
+            &lt;div&gt;Window Title&lt;/div&gt;
+            &lt;span class="window-close"&gt;
+                &lt;svg viewport="0 0 12 12" version="1.1"
+                     xmlns="http://www.w3.org/2000/svg"&gt;
+                    &lt;line x1="1" y1="11"
+                          x2="11" y2="1"
+                          stroke="black"
+                          strokeWidth="2"/&gt;
+                    &lt;line x1="1" y1="1"
+                          x2="11" y2="11"
+                          stroke="black"
+                          strokeWidth="2"/&gt;
+                &lt;/svg&gt;
+            &lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class="window-body"&gt;
+            Window body
+        &lt;/div&gt;
+    &lt;/div&gt;
+</pre>
+
+
+                <button id="windowtoggle" type="button">Toggle Window</button>
+
+                <ul>
+                    <li><a href="jswindow.js">jswindow.js</a></li>
+                    <li><a href="jswindow.css">jswindow.css</a></li>
+                </ul>
+
+                <p>
+                    The React version, with some extra application-specific things, is here:
+                    <a href="https://github.com/ccnmtl/astro-simulations/blob/master/eclipsing-binary-simulator/src/Window.jsx">Window.jsx</a>.
+                </p>
+
+
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
