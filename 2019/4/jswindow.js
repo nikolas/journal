@@ -59,6 +59,9 @@ function onMouseUp() {
 
 function closeWindow() {
     state.isHidden = true;
+
+    var w = document.getElementById('window');
+    renderWindow(w, state);
 }
 
 ready(function() {
@@ -71,7 +74,7 @@ ready(function() {
     document.addEventListener('mouseup', onMouseUp);
 
     var closeButton = document.querySelectorAll('.window-close');
-    closeButton[0].addEventListener('mousedown', closeWindow);
+    closeButton[0].addEventListener('click', closeWindow);
 
     var toggleButton = document.getElementById('windowtoggle');
     toggleButton.addEventListener('click', function() {
