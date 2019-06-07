@@ -99,10 +99,12 @@ getNoiseData(lightcurveData) {
 
         // Generate noise based on the real y val.
         const y = lightcurveData[idx][1];
+</pre>
 <p>
     The rest is pretty straightforward: add some level of randomness
     to this Y value, depending on the adjustable noise value.
 </p>
+<pre>
         const newY = y + (
             // Scale the randomization factor by the value
             // of the "noise" slider
