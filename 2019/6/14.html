@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>OpenTTD and SDL 2.0</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">OpenTTD and SDL 2.0</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2019-06-14" itemprop="datePublished">Friday, June 14, 2019</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    What do I like about the internet and free
+                    software?  The idea that things can be sustainable
+                    and maintained, and be around for maybe even forever.
+                    I'm not excited about new developments in
+                    technology, business, etc.  Rather, I just like
+                    finding software I like: Audacity, Mixxx, Xmonad,
+                    that's alive and always open to a deeper
+                    understanding for anyone who desires. Each program
+                    is its own world of knowledge.  If you want to
+                    spend a weekend learning how video codecs are put
+                    together in VLC, you're free to do that.  And I
+                    mean, who wouldn't want to be able to
+                    play <a href="https://www.openttd.org">OpenTTD</a>
+                    in 20 years?
+                </p>
+                <p>
+                    Software is alive and constantly changes based on
+                    how it's being used. So if you like a project, you
+                    can help out by fixing things up and helping it
+                    along.  I've found graphics kind of interesting
+                    lately, so I've been learning about various
+                    graphical systems on the web related to my job, as
+                    well as <a href="https://www.libsdl.org/">SDL</a>,
+                    a widely used cross-platform development library
+                    that handles graphics output.  OpenTTD uses SDL
+                    1.2: it's not a pressing concern, but this will be
+                    deprecated at some point in favor of the new SDL
+                    2.0. So I went through the
+                    <a href="https://wiki.libsdl.org/MigrationGuide">SDL
+                    2 Migration Guide</a> and did my best to apply
+                    these changes to OpenTTD.
+                    The <a href="https://github.com/OpenTTD/OpenTTD/pull/7086">pull
+                    request</a> has been open for six months and has
+                    gone through lots of changes and feedback. I've
+                    learned about OpenTTD's
+                    <a href="https://en.wikipedia.org/wiki/Blitter">pixel
+                    blitters</a> and the process that graphics go
+                    through, from an idea in the code to animation on
+                    the screen.
+                </p>
+                <p>
+                    I've done my best to understand the insides of
+                    OpenTTD. MaiZure made a nice overview of this
+                    program last August:
+                    <a href="http://www.maizure.org/projects/decoded-openttd/index.html">Decoded: OpenTTD</a>.
+                    What have I learned through all this? I already
+                    knew programming is complicated. But when you have
+                    a specific goal in mind, and you can visualize
+                    that goal and start piecing together the
+                    connections in your mind, it's definitely within
+                    reach. And also, I can't imagine what the source
+                    code for
+                    <a href="http://www.bay12games.com/dwarves/">Dwarf Fortress</a>
+                    looks like. I'll have to write a post about that
+                    another time.
+                </p>
+
+                <p>
+
+                </p>
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
