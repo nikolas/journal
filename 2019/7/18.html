@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>How to back up your Vault secrets - and other thoughts on passwords</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">How to back up your Vault secrets</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2019-07-18" itemprop="datePublished">Thursday, July 18, 2019</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    <a href="https://www.vaultproject.io/">Vault</a>
+                    is a tool for managing and encrypting secrets. It's used
+                    as a daemon, running on a server, that needs to be active
+                    in order for these encrypted secrets to be read. I've been
+                    cleaning a few things up with a vault service I'm using:
+                    fixing a graphite connection error that caused vault.log
+                    to grow to over 1gb, setting up log rotation for this log
+                    file and vault_audit.log, and just some routine upgrades
+                    of the Vault software itself.
+                </p>
+                <p>
+                    When you make changes like this to Vault, it has the tendency
+                    to "seal" itself. This is a security measure that requires a few
+                    separate keys to "unseal" into a mode where Vault can again
+                    read out secrets for you. Because of this, making changes to
+                    Vault can be scary: What if I lose all my secrets?
+                </p>
+                <p>
+                    There's still a place in this world for 
+                    <a href="https://www.sup.org/books/title/?id=26821">plain text files</a> and
+                    <a href="https://xkcd.com/2176/">password books</a>.
+                    As a safeguard, I decided to just save all my
+                    vault secrets in a plain text file, and keep it
+                    somewhere physically secure.
+                </p>
+                <p>
+                    Following that path led me 
+                    <a href="https://github.com/hashicorp/vault/issues/111">here</a>,
+                    and since Vault doesn't have a "print out all the secrets" command,
+                    I needed to do some basic shell scripting.
+                    Use this <a href="https://gist.github.com/mazenovi/db8e8efb001d45059a6102fa4e241688">vault-tree</a>
+                    script to print out the full path of each secret
+                    in your vault tree. Then make another script
+                    that takes each line and runs <code>vault read</code>
+                    on it:
+                </p>
+<pre>
+#!/usr/bin/env bash
+#
+# read_vault_secrets.sh
+#
+
+while read path; do
+    vault read -format=json "$path"
+done < $1
+</pre>
+                <p>
+                    Using these scripts together, you can do something
+                    like this:
+                </p>
+                <pre>
+./vault-tree > my_vault_tree.txt
+./read_vault_secrets.sh my_vault_tree.txt > vault_secrets.txt
+                </pre>
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
