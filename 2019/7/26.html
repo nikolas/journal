@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>SDL detective work</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">SDL detective work</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2019-07-26" itemprop="datePublished">Friday, July 26, 2019</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    I find that one of the most frustrating but also most
+                    rewarding things about software development is solving
+                    problems that you have no idea, at first, how to solve.
+                    When there's no clear path forward, you have to
+                    rely on intuition, detective work, and trial and error.
+                </p>
+                <p>
+                    My <a href="https://github.com/OpenTTD/OpenTTD/pull/7086#issuecomment-513011755">SDL 2 branch</a>
+                    of OpenTTD wasn't rendering correctly for a few
+                    people, and it seemed like they were having the
+                    same problem.  I tried re-creating their
+                    environments: I booted up an Arch Linux VirtualBox
+                    and tested my branch in there, because that was
+                    the environment in one report. I knew it was
+                    unlikely that the distribution would make a
+                    difference but I tried anyways, and still couldn't
+                    reproduce the problem.
+                </p>
+                <p>
+                    I also found out that one thing these two reports
+                    had in common was that they were both using Nvidia
+                    graphics cards. I don't have access to any
+                    computers with an Nvidia card, so that could
+                    explain why I can't reproduce the problem.
+                </p>
+                <p>
+                    That was a good lead, so I searched for similar
+                    problems online specific to SDL 2 and Nvidia. I didn't 
+                    find anything, likely because I'm using an outdated 2D
+                    rendering API 
+                    (<a href="https://wiki.libsdl.org/SDL_UpdateWindowSurfaceRects">SDL_UpdateWindowSurfaceRects</a>)
+                    because of OpenTTD's custom blitters. SDL 2 applications
+                    typically use <a href="https://wiki.libsdl.org/SDL_UpdateTexture">SDL_UpdateTexture</a>
+                    to update the screen, using a whole different data
+                    structure (SDL_Texture) that is hardware
+                    accelerated. So, it's not surprising that I'm running
+                    into some kinks here. That's what happens when you
+                    do things in not-quite-expected ways.
+                </p>
+                <p>
+                    So, back to the main problem: it's obvious that my
+                    SDL 2 driver is working as far as I can see: why
+                    are these Nvidia cards having trouble? There must
+                    be something that SDL is doing that's preventing
+                    things from working: some key code path inside
+                    SDL that could illuminate things.
+                </p>
+                <p>
+                    I found another clue just searching for "NVIDIA" inside
+                    SDL's 
+                    <a href="https://hg.libsdl.org/SDL/file/05dddfb66b85/src/video/SDL_video.c">video driver</a>:
+                </p>
+<pre>
+static SDL_bool
+ShouldUseTextureFramebuffer()
+{
+    ...
+
+        if (vendor &&
+            (SDL_strstr(vendor, "ATI Technologies") ||
+             SDL_strstr(vendor, "NVIDIA"))) {
+            hasAcceleratedOpenGL = SDL_TRUE;
+        }
+    ...
+
+    return hasAcceleratedOpenGL;
+    ...
+}
+</pre>
+                <p>
+                    Thanks to explicit naming conventions, the problem
+                    was clear: I don't want to be using the texture
+                    framebuffer at all! Textures are for hardware
+                    acceleration. I'm only dealing with old-school
+                    SDL_Surfaces, again, because of OpenTTD's custom
+                    blitters.
+                </p>
+                <p>
+                    This ties together with another clue, seeing how 
+                    <code>SDL_UpdateWindowSurfaceRects()</code> is implemented:
+                </p>
+<pre>
+SDL_UpdateWindowSurfaceRects(SDL_Window * window, const SDL_Rect * rects,
+                             int numrects)
+{
+    CHECK_WINDOW_MAGIC(window, -1);
+
+    if (!window->surface_valid) {
+        return SDL_SetError("Window surface is invalid, please call SDL_GetWindowSurface() to get a new surface");
+    }
+
+    return _this->UpdateWindowFramebuffer(_this, window, rects, numrects);
+}
+</pre>
+                <p>
+                    And <code>_this->UpdateWindowFramebuffer()</code> is replaced with
+                    a texture updater based on the value of <code>ShouldUseTextureFramebuffer()</code>
+                    from above:
+                </p>
+<pre>
+/* Add the renderer framebuffer emulation if desired */
+if (ShouldUseTextureFramebuffer()) {
+    _this->CreateWindowFramebuffer = SDL_CreateWindowTexture;
+    _this->UpdateWindowFramebuffer = SDL_UpdateWindowTexture;
+    _this->DestroyWindowFramebuffer = SDL_DestroyWindowTexture;
+}
+</pre>
+                <p>
+                    Alright, so how do I avoid this code path and get 
+                    <code>ShouldUseTextureFramebuffer()</code> to return False
+                    when SDL starts up? There are many cases to take advantage
+                    of at the beginning of this function. Here's what
+                    I decided on using:
+                </p>
+<pre>
+/* See if the user or application wants a specific behavior */
+hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
+if (hint) {
+    if (*hint == '0' || SDL_strcasecmp(hint, "false") == 0) {
+        return SDL_FALSE;
+    } else {
+        return SDL_TRUE;
+    }
+}
+</pre>
+                <p>
+                    So, by adding this hint in OpenTTD to turn off
+                    acceleration, the Nvidia issue is solved.
+                </p>
+<pre>
+SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION , "0");
+</pre>
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
