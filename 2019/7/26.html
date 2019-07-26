@@ -19,7 +19,7 @@
 
             <div itemprop="articleBody">
                 <p>
-                    I find that one of the most frustrating but also most
+                    One of the most frustrating but also most
                     rewarding things about software development is solving
                     problems that you have no idea, at first, how to solve.
                     When there's no clear path forward, you have to
@@ -42,7 +42,9 @@
                     had in common was that they were both using Nvidia
                     graphics cards. I don't have access to any
                     computers with an Nvidia card, so that could
-                    explain why I can't reproduce the problem.
+                    explain why I can't reproduce the
+                    problem. Everything I'm using has an Intel
+                    graphics device.
                 </p>
                 <p>
                     That was a good lead, so I searched for similar
@@ -89,12 +91,12 @@ ShouldUseTextureFramebuffer()
 }
 </pre>
                 <p>
-                    Thanks to explicit naming conventions, the problem
-                    was clear: I don't want to be using the texture
-                    framebuffer at all! Textures are for hardware
-                    acceleration. I'm only dealing with old-school
-                    SDL_Surfaces, again, because of OpenTTD's custom
-                    blitters.
+                    Thanks to explicit naming conventions and clear
+                    code, the problem was becoming more obvious: I
+                    don't want to be using the texture framebuffer at
+                    all! Textures are for hardware acceleration. I'm
+                    only dealing with old-school SDL_Surfaces, again,
+                    because of OpenTTD's custom blitters.
                 </p>
                 <p>
                     This ties together with another clue, seeing how 
@@ -131,7 +133,7 @@ if (ShouldUseTextureFramebuffer()) {
                     <code>ShouldUseTextureFramebuffer()</code> to return False
                     when SDL starts up? There are many cases to take advantage
                     of at the beginning of this function. Here's what
-                    I decided on using:
+                    I decided to use:
                 </p>
 <pre>
 /* See if the user or application wants a specific behavior */
