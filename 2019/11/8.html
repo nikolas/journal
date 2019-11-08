@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Cloning arbitrary Django objects</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+            <header>
+                <h1 itemprop="name">Cloning arbitrary Django objects</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2019-11-08" itemprop="datePublished">Friday, November 8, 2019</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    I recently made a "course-cloning" feature in
+                    <a href="https://econpractice.ctl.columbia.edu/">EconPractice</a> that provides new instructors with
+                    their own template course. The original master
+                    course is managed by Tom Groll. This will give new
+                    instructors some ideas on how EconPractice can be
+                    used, and what scenarios it was designed for.
+                </p>
+                <p>
+                    A course is represented in Django with the <code>Course</code> model.
+                    This model has many <code>Topic</code> instances, which in turn
+                    have many <code>Graph</code> instances. I want to create a copy of
+                    each topic and graph whenever this course is cloned.
+                </p>
+                <p>
+                    Python has a
+                    <a href="https://docs.python.org/3.6/library/copy.html">copy</a>
+                    library that can be used to copy Python
+                    objects. But Django model instances have even more
+                    to them than a Python object, because they
+                    represent what's saved in a database.
+                </p>
+                <p>
+                    The recommended way to copy Django model instances
+                    is to use <code>copy()</code>, then set the instance's
+                    primary key to <code>None</code>, and save it. To clone
+                    a Graph instance, it's pretty simple:
+                </p>
+<pre>
+class Graph(models.Model):
+    def clone(self):
+        g = copy.copy(self)
+        g.pk = None
+        g.save()
+        return g
+</pre>
+                <p>
+                    To clone the whole course, I have to deal with the
+                    relations of the course manually. Because Django
+                    doesn't know that I want to clone all the course's
+                    topics and graphs, but not some relations like,
+                    for example, the users.
+                </p>
+<pre>
+# Course is called Cohort here (it's just a more general 
+# term for a course).
+class Cohort(models.Model):
+    def clone(self):
+        c = copy.copy(self)
+        c.pk = None
+        c.is_sample = None
+        c.save()
+
+        # Clone the topics.
+        for topic in self.topic_set.all():
+            if topic.name == 'General':
+                # The General topic is created automatically in the
+                # post_save hook.
+                cloned_topic = c.get_general_topic()
+            else:
+                cloned_topic = Topic.objects.create(cohort=c, name=topic.name)
+
+            for graph in topic.graph_set.all():
+                cloned_graph = graph.clone()
+                cloned_graph.topic = cloned_topic
+                cloned_graph.save()
+
+        return c
+</pre>
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
