@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Upstart to systemd</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+
+            <header>
+                <h1 itemprop="name">Upstart to systemd</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2020-01-17" itemprop="datePublished">Friday, January 17, 2020</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    Now that all the mainstream Linux distros (Debian,
+                    Ubuntu, RHEL/Fedora) use
+                    <a href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a>,
+                    a lot of people are moving from init and
+                    <a href="http://upstart.ubuntu.com/">Upstart</a>
+                    scripts to systemd
+                    "<a href="https://www.freedesktop.org/software/systemd/man/systemd.service.html">Unit
+                    files</a>" (I thought they were just called service files).
+                </p>
+                <p>
+                    Here's an upstart configuration for a Go service we use:
+                </p>
+<pre>
+# /etc/init/chimney-upstart.conf
+description "chimney service"
+
+start on filesystem or runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+setuid pusher
+setgid pusher
+
+env CHIMNEY_LOG_LEVEL=INFO
+
+exec /usr/local/bin/chimney -config=/etc/chimney/config.json
+</pre>
+
+                <p>
+                    And, translated to a systemd unit file:
+                </p>
+
+<pre>
+# /etc/systemd/system/chimney.service
+[Unit]
+Description=chimney service
+
+[Service]
+Environment=CHIMNEY_LOG_LEVEL=INFO
+WorkingDirectory=/home/pusher
+User=pusher
+ExecStart=/usr/local/bin/chimney -config=/etc/chimney/config.json
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+</pre>
+                <p>
+                    And then, we have <a href="https://www.saltstack.com/">Salt</a>
+                    configured to push out the systemd file if the salt minion is
+                    using a new enough version of Ubuntu (16.04 and newer):
+                </p>
+<pre>
+{% if grains.oscodename == 'trusty' %}
+/etc/init/chimney.conf:
+  file.managed:
+    - source: salt://chimney/upstart.conf
+    - user: root
+    - group: root
+    - makedirs: True
+    - template: jinja
+{% else %}
+/etc/systemd/system/chimney.service:
+  file.managed:
+    - source: salt://chimney/chimney.service
+    - user: root
+    - group: root
+    - makedirs: True
+    - template: jinja
+{% endif %}
+</pre>
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
