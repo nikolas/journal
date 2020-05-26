@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>How to set up ModSecurity with nginx</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+
+            <header>
+                <h1 itemprop="name">How to set up ModSecurity with nginx</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2020-05-26" itemprop="datePublished">Tuesday, May 26, 2020</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <h2>ModSecurity</h2>
+                <p>
+                    <a href="https://modsecurity.org/">ModSecurity</a>
+                    is a web application firewall with a long history,
+                    originally designed for Apache (the project was
+                    started before nginx was even around). Ubuntu
+                    doesn't provide a package for
+                    <a href="https://github.com/SpiderLabs/ModSecurity">ModSecurity</a>, 
+                    or the
+                    <a href="https://github.com/SpiderLabs/ModSecurity-nginx">ModSecurity-nginx</a> 
+                    module.
+                </p>
+
+                <p>
+                    What's an application firewall? ModSecurity looks
+                    at every request that comes through nginx. If it meets certain parameters, 
+                    (defined by the <a href="https://coreruleset.org/">OWASP core rule set<a>),
+                    the request is immediately denied with a 403 error.
+                </p>
+
+                <p>
+                    ModSecurity 3, released a few years ago, has been
+                    adapting itself from an apache module to a
+                    server-independent library -
+                    libmodsecurity. I'm setting this up for an Ubuntu 18.04 server,
+                    but the steps will be similar for any Unix system.
+                    Ubuntu 20.04 provides a
+                    <a href="https://packages.ubuntu.com/focal/libmodsecurity3">libmodsecurity3</a>
+                    package. So, I can take
+                    advantage of that when I'm on Ubuntu 20, but
+                    even then I'll still have to compile my own
+                    <a href="https://github.com/SpiderLabs/ModSecurity-nginx">nginx module</a> 
+                    to connect this to nginx.
+                </p>
+
+                <p>
+                    Here are the pieces you need to get ModSecurity working with nginx:
+                </p>
+
+                <h3>libmodsecurity</h3>
+                <p>
+                    libmodsecurity itself. Compiled
+                    from <a href="https://github.com/SpiderLabs/ModSecurity/">https://github.com/SpiderLabs/ModSecurity/</a>,
+                    synonymous with "ModSecurity".
+                </p>
+
+                <h3>ModSecurity-nginx</h3>
+                <p>
+                    The nginx module. Compiled from <a href="https://github.com/SpiderLabs/ModSecurity-nginx/">https://github.com/SpiderLabs/ModSecurity-nginx/</a>.
+                    In order to compile this, you need to download
+                    the <a href="https://github.com/nginx/nginx">nginx</a>
+                    source code at the right version (in our case,
+                    1.14.0). The configure flags passed during the
+                    configure step must also match those that our
+                    version of nginx was compiled with, by Ubuntu (You
+                    get these with <code>nginx -V</code>), or use
+                    the <code>--with-compat</code> flag.
+                <p>
+
+                <p>
+                    From the nginx source directory:
+                </p>
+
+                <pre>
+./auto/configure --add-module=/path/to/ModSecurity-nginx --with-compat
+                </pre>
+
+
+                <h3>OWASP coreruleset</h3>
+                <ul>
+                    <li><a href="https://coreruleset.org/">https://coreruleset.org/</a></li>
+                    <li><a href="https://github.com/coreruleset/coreruleset">https://github.com/coreruleset/coreruleset</a></li>
+                </ul>
+
+                <p>
+                    Some of these rules require libmodsecurity to be
+                    compiled with certain library support. For
+                    example, the geolocation rules require a
+                    libmodsecurity with either GeoIP or MaxMind
+                    enabled. These are IP location databases. We're
+                    currently using GeoIP. I had an issue with MaxMind
+                    - the version that Ubuntu 18 provides is too old
+                    for ModSecurity.
+                </p>
+
+                <h2>Connecting everything together</h2>
+
+                <p>
+                    All these pieces are connected with these configuration files:
+                </p>
+
+                <ul>
+                    <li><strong>/etc/nginx/nginx.conf</strong>: This file needs to load the modsecurity nginx module, and turn <code>modsecurity on</code>, and set <code>modsecurity_rules_file /etc/nginx/modsecurity/main.conf</code></li>
+                    <li><strong>/etc/nginx/modsecurity/main.conf</strong>: This file loads <code>/etc/nginx/modsecurity/modsecurity.conf</code> along with the core ruleset files. It's pretty simple, and here's an example:</li>
+                </ul>
+
+                <pre>
+# From https://github.com/SpiderLabs/ModSecurity/blob/master/
+# modsecurity.conf-recommended
+#
+# Edit to set SecRuleEngine On
+Include "/etc/nginx/modsecurity/modsecurity.conf"
+
+Include "/etc/nginx/modsecurity/coreruleset/crs-setup.conf"
+Include "/etc/nginx/modsecurity/coreruleset/rules/*.conf"
+
+# Basic test rule
+SecRule ARGS:testparam "@contains test" "id:1234,deny,status:403"
+                </pre>
+
+                <p>
+                    After restarting nginx, if everything's working as
+                    expected, you should see the following line
+                    in <code>/var/log/nginx/error.log</code> after
+                    nginx starts up:
+                </p>
+
+                <pre>
+2020/05/21 12:08:51 [notice] 6362#6362: ModSecurity-nginx v1.0.1 \
+  (rules loaded inline/local/remote: 0/907/0)
+                </pre>
+
+                <p>
+                    Note that 907 local rules were loaded here, that's
+                    from the OWASP ruleset. Because of the test rule
+                    in
+                    <code>main.conf</code>, you can also test this by
+                    making a request to your server with the GET param
+                    <code>?testparam=test</code>. That request should
+                    be denied with a 403 error.
+                </p>
+                <p>
+                    Now, take a look
+                    in <code>/var/log/modsec_audit.log</code>
+                    and <code>/var/log/nginx/error.log</code>. There
+                    will be lots of interesting info in these files as
+                    requests are blocked by ModSecurity. You might
+                    need to tune your new firewall if you're seeing
+                    false positives &mdash; I'm still learning about
+                    that process, and I'll have another post
+                    documenting that.
+                </p>
+            </div>
+
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
