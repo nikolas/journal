@@ -21,7 +21,7 @@
             <header>
                 <h1 itemprop="name">How to simulate gas particles with Matter.js</h1>
                 <div style="display: none;" itemprop="author">Nikolas Nyby</div>
-                <time datetime="2021-04-09" itemprop="datePublished">Friday, April 9, 2021</time>
+                <time datetime="2021-04-20" itemprop="datePublished">Tuesday, April 20, 2021</time>
             </header>
 
             <div itemprop="articleBody">
@@ -102,6 +102,7 @@ const particle = Matter.Bodies.circle(
 
 <pre>
 const direction = Math.random() * Math.PI * 2;
+
 Matter.Body.setVelocity(p, {
     x: Math.sin(direction) * PARTICLE_SPEED,
     y: Math.cos(direction) * PARTICLE_SPEED
@@ -117,7 +118,15 @@ Matter.Body.setVelocity(p, {
                 <script src="demo.js"></script>
 
                 <p>
-                    This demo actually includes a few
+                    This demo actually includes walls to contain these
+                    particles. These are created by making four
+                    Matter.Bodies with the isStatic: true setting.
+                    For more details you can see
+                    the <a href="./demo.js">demo code</a>.
+                </p>
+
+                <p>
+                    
                 </p>
             </div>
         </article>
