@@ -16,10 +16,9 @@ const adjustE = function(p) {
         let speedMultiplier = baseSpeed / p.speed;
 
         Matter.Body.setVelocity(p, {
-                x: p.velocity.x * speedMultiplier,
-                y: p.velocity.y * speedMultiplier
-              }
-         );
+            x: p.velocity.x * speedMultiplier,
+            y: p.velocity.y * speedMultiplier
+        });
     }
 };
 
@@ -39,48 +38,48 @@ const drawWalls = function() {
     };
 
     return [
-            // Bottom wall
-            Bodies.rectangle(
-                             // x, y
-                             0, HEIGHT,
-                             // width, height
-                             WIDTH * 2, margin,
-                             wallOptions
-                             ),
-            // right wall
-            Bodies.rectangle(
-                             // x, y
-                             WIDTH, 0,
-                             // width, height
-                             margin, HEIGHT * 2,
-                             wallOptions
-                             ),
-            // top wall
-            Bodies.rectangle(
-                             // x, y
-                             0, 0,
-                             // width, height
-                             WIDTH * 2, margin,
-                             wallOptions
-                             ),
-            // left wall
-            Bodies.rectangle(
-                             // x, y
-                             0, 0,
-                             // width, height
-                             margin, HEIGHT * 2,
-                             wallOptions
-                             ),
-            ];
+        // Bottom wall
+        Bodies.rectangle(
+            // x, y
+            0, HEIGHT,
+            // width, height
+            WIDTH * 2, margin,
+            wallOptions
+        ),
+        // right wall
+        Bodies.rectangle(
+            // x, y
+            WIDTH, 0,
+            // width, height
+            margin, HEIGHT * 2,
+            wallOptions
+        ),
+        // top wall
+        Bodies.rectangle(
+            // x, y
+            0, 0,
+            // width, height
+            WIDTH * 2, margin,
+            wallOptions
+        ),
+        // left wall
+        Bodies.rectangle(
+            // x, y
+            0, 0,
+            // width, height
+            margin, HEIGHT * 2,
+            wallOptions
+        ),
+    ];
 };
 
 const makeParticle = function() {
     const particleMargin = 4;
     const p = Matter.Bodies.circle(
         (Math.random() * (WIDTH - particleMargin)) +
-        (particleMargin / 2),
+            (particleMargin / 2),
         (Math.random() * (HEIGHT - particleMargin)) +
-        (particleMargin / 2),
+            (particleMargin / 2),
         3, {
             render: {
                 fillStyle: '#6666A0',
@@ -112,51 +111,51 @@ const makeParticles = function() {
 };
 
 document.addEventListener('DOMContentLoaded', function(event) { 
-        const Engine = Matter.Engine,
-            Render = Matter.Render,
-            Runner = Matter.Runner,
-            Composite = Matter.Composite;
+    const Engine = Matter.Engine,
+          Render = Matter.Render,
+          Runner = Matter.Runner,
+          Composite = Matter.Composite;
 
-        // create an engine
-        const engine = Engine.create();
-        this.engine = engine;
-        engine.world.gravity.y = 0;
+    // create an engine
+    const engine = Engine.create();
+    this.engine = engine;
+    engine.world.gravity.y = 0;
 
-        // create a renderer
-        const render = Render.create({
-                element: document.getElementById('js-root'),
-                engine: engine,
-                width: WIDTH,
-                height: HEIGHT,
-                options: {
-                    wireframes: false,
-                    background: 'white',
-                }
+    // create a renderer
+    const render = Render.create({
+        element: document.getElementById('js-root'),
+        engine: engine,
+        width: WIDTH,
+        height: HEIGHT,
+        options: {
+            wireframes: false,
+            background: 'white',
+        }
+    });
+    Render.lookAt(render, {
+        min: { x: 0, y: 0 },
+        max: { x: WIDTH, y: HEIGHT }
+    });
+
+    Render.run(render);
+
+    const walls = drawWalls();
+    Matter.Composite.add(engine.world, walls);
+
+    const particles = makeParticles();
+    Matter.Composite.add(engine.world, particles);
+
+    const runner = Runner.create();
+    Runner.run(runner, engine);
+
+    let counter0 = 0;
+    Matter.Events.on(engine, 'beforeUpdate', function(e) {
+        if (e.timestamp >= counter0 + 500) {
+            particles.forEach(function(p) {
+                adjustE(p);
             });
-        Render.lookAt(render, {
-                min: { x: 0, y: 0 },
-                max: { x: WIDTH, y: HEIGHT }
-        });
 
-        Render.run(render);
-
-        const walls = drawWalls();
-        Matter.Composite.add(engine.world, walls);
-
-        const particles = makeParticles();
-        Matter.Composite.add(engine.world, particles);
-
-        const runner = Runner.create();
-        Runner.run(runner, engine);
-
-        let counter0 = 0;
-        Matter.Events.on(engine, 'beforeUpdate', function(e) {
-                if (e.timestamp >= counter0 + 500) {
-                    particles.forEach(function(p) {
-                            adjustE(p);
-                    });
-
-                    counter0 = e.timestamp;
-                }
-            });
+            counter0 = e.timestamp;
+        }
+    });
 });
