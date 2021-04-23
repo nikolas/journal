@@ -8,7 +8,7 @@
         <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="../../journal.css" type="text/css" />
         <style type="text/css">
-            #js-root canvas {
+            #js-root canvas, #js-root-2 canvas {
               width: 370px;
               height: 300px;
             }
@@ -38,16 +38,15 @@
                     This simulation includes a view of gas particles
                     flying around in a chamber. They bump into each
                     other, bump off the walls of the chamber, and
-                    possibly escape the chamber, depending on the
-                    settings.
+                    can escape the chamber as configured by the user.
                 </p>
                 <p>
-                    I've taken a course in computational physics
+                    I've taken courses in computational physics
                     before, so I know how complicated making these
                     calculations yourself can be.
                     I knew I wanted to take advantage of some sort of
                     <a href="https://en.wikipedia.org/wiki/Physics_engine">Physics engine</a>
-                    to get all this working as best as possible.
+                    so the particles move in a realistic, accurate way.
                 </p>
                 <p>
                     I chose to use <a href="https://brm.io/matter-js/">Matter.js</a>
@@ -68,7 +67,7 @@ engine.world.gravity.y = 0;
 </pre>
                 <p>
                     Now, we need to turn friction off when we create
-                    the particles:
+                    the particles, and give them infinite inertia:
                 </p>
 <pre>
 const particleOptions = {
@@ -84,6 +83,8 @@ const particle = Matter.Bodies.circle(
     particleSize, 
     particleOptions
 );
+
+Matter.Body.setInertia(particle, Infinity);
 </pre>
 
                 <p>
@@ -101,6 +102,7 @@ const particle = Matter.Bodies.circle(
                 </p>
 
 <pre>
+// Find a random direction, in radians
 const direction = Math.random() * Math.PI * 2;
 
 Matter.Body.setVelocity(p, {
@@ -110,24 +112,89 @@ Matter.Body.setVelocity(p, {
 </pre>
 
                 <p>
+                    You'll also need to add some walls around the scene
+                    to contain these particles. These are created by making 
+                    four Matter.Bodies with the isStatic: true setting.
                     Now you should have them moving around like this:
                 </p>
 
-                <div id="js-root"></div>
+                <div id="js-root-2"></div>
                 <script src="matter.js"></script>
                 <script src="demo.js"></script>
 
                 <p>
-                    This demo actually includes walls to contain these
-                    particles. These are created by making four
-                    Matter.Bodies with the isStatic: true setting.
-                    For more details you can see
-                    the <a href="./demo.js">demo code</a>.
+                    So, why are the particles getting stuck to the
+                    walls, and eventually losing speed? Even though we've
+                    turned off friction and set the particles to have
+                    infinite inertia, they're still losing energy as they
+                    collide.
                 </p>
 
                 <p>
-                    
+                    We found 
+                    <a href="https://github.com/liabru/matter-js/issues/256#issuecomment-573172170">this post</a> 
+                    in the matter.js forum that talks about this issue. 
+                    It includes a solution to this problem by periodically 
+                    re-introducing energy to each body according 
+                    to how much energy was lost.
+                    We were able to adapt this code to our
+                    scenario, where each particle has its
+                    own unique speed assigned to it based
+                    on the 
+                    <a href="https://en.wikipedia.org/wiki/Maxwell%E2%80%93Boltzmann_distribution">Maxwell-Boltzmann Distribution function</a>.
                 </p>
+
+<pre>
+const adjustE = function(p) {
+    const baseSpeed = p.molecularSpeed * PARTICLE_SPEED;
+
+    if (p.speed !== 0) {
+        let speedMultiplier = baseSpeed / p.speed;
+
+        Matter.Body.setVelocity(
+            p, {
+                x: p.velocity.x * speedMultiplier,
+                y: p.velocity.y * speedMultiplier
+            }
+        );
+    }
+};
+
+// Run adjustE on each particle every 500 milliseconds.
+let counter = 0;
+Matter.Events.on(engine, 'beforeUpdate', function(e) {
+    if (e.timestamp >= counter + 500) {
+        me.particles.forEach(function(gasParticles) {
+            gasParticles.forEach(function(p) {
+                adjustE(p);
+            });
+        });
+
+        counter = e.timestamp;
+    }
+});
+</pre>
+
+                <p>
+                    And now, the slowdown is fixed and the particles
+                    move like we want them to:
+                </p>
+
+                <div id="js-root"></div>
+
+                <p>
+                    This demo above is a simplified version of the full
+                    Gas Retention sim. 
+                    The demo code is
+                    <a href="./demo.js">here</a>, which is the bare minimum
+                    to get this scenario running in Matter.js. It
+                    doesn't include the rest of the simulation all connected in React.
+                    You can see the real code 
+                    <a href="https://github.com/ccnmtl/astro-simulations/tree/master/gas-retention-simulator/src">here</a>.
+                </p>
+
+
+
             </div>
         </article>
         

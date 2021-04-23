@@ -10,7 +10,7 @@ const PARTICLE_SPEED = 3;
  *   https://jsfiddle.net/xaLtoc2g/
  */
 const adjustE = function(p) {
-    const baseSpeed = 1 * PARTICLE_SPEED;
+    const baseSpeed = PARTICLE_SPEED;
 
     if (p.speed !== 0) {
         let speedMultiplier = baseSpeed / p.speed;
@@ -158,4 +158,37 @@ document.addEventListener('DOMContentLoaded', function(event) {
             counter0 = e.timestamp;
         }
     });
+
+    // Make a second scene without the energy adjustment.
+    // create an engine
+    const engine2 = Engine.create();
+    this.engine2 = engine2;
+    engine2.world.gravity.y = 0;
+
+    // create a renderer
+    const render2 = Render.create({
+        element: document.getElementById('js-root-2'),
+        engine: engine2,
+        width: WIDTH,
+        height: HEIGHT,
+        options: {
+            wireframes: false,
+            background: 'white',
+        }
+    });
+    Render.lookAt(render2, {
+        min: { x: 0, y: 0 },
+        max: { x: WIDTH, y: HEIGHT }
+    });
+
+    Render.run(render2);
+
+    const walls2 = drawWalls();
+    Matter.Composite.add(engine2.world, walls2);
+
+    const particles2 = makeParticles();
+    Matter.Composite.add(engine2.world, particles2);
+
+    const runner2 = Runner.create();
+    Runner.run(runner2, engine2);
 });
