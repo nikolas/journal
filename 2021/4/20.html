@@ -31,6 +31,10 @@
                     we've made as part of our effort to
                     re-work <a href="https://www.unl.edu/physics/kevin-lee">Kevin Lee</a>'s 
                     <a href="https://astro.unl.edu/">astronomy simulations</a>.
+                    The goal here has been to port these simulations
+                    from Flash to HTML/JavaScript, now that Flash is
+                    not being used anymore and JavaScript can do
+                    everything Flash used to do.
                 </p>
                 <img src="grs-screen1.png" 
                      alt="Screenshot of the Gas Retention Simulator" />
@@ -46,7 +50,7 @@
                     calculations yourself can be.
                     I knew I wanted to take advantage of some sort of
                     <a href="https://en.wikipedia.org/wiki/Physics_engine">Physics engine</a>
-                    so the particles move in a realistic, accurate way.
+                    so the particles move in a realistic way.
                 </p>
                 <p>
                     I chose to use <a href="https://brm.io/matter-js/">Matter.js</a>
@@ -55,7 +59,7 @@
                 </p>
                 <p>
                     The typical Matter.js scene displays objects
-                    pulled bottom of the screen with gravity. I needed
+                    pulled to the bottom of the screen with gravity. I needed
                     a different type of scene where gravity doesn't
                     come into play, but we still get physical movement
                     as the particles bounce around. You can turn
@@ -88,8 +92,10 @@ Matter.Body.setInertia(particle, Infinity);
 </pre>
 
                 <p>
-                    At this stage in the process, we have a bunch of
-                    particles at random positions. Because we turned
+                    Run this about 100 times in a loop, and at this
+                    stage in the process we have a bunch of particles
+                    at random positions.
+                    Because we turned
                     off gravity, they're not going anywhere.
                 </p>
 
@@ -192,9 +198,6 @@ Matter.Events.on(engine, 'beforeUpdate', function(e) {
                     You can see the real code 
                     <a href="https://github.com/ccnmtl/astro-simulations/tree/master/gas-retention-simulator/src">here</a>.
                 </p>
-
-
-
             </div>
         </article>
         
