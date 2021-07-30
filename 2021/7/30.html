@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>How to use and extend Mozilla's PDF.js Viewer</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+
+            <header>
+                <h1 itemprop="name">How to use and extend Mozilla's PDF.js Viewer</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2021-07-30" itemprop="datePublished">Friday, July 30, 2021</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    For the past few weeks, I've been working on
+                    adding PDF support to
+                    our <a href="https://mediathread.ctl.columbia.edu/">Mediathread</a>
+                    media analysis and annotation tool. Mediathread
+                    already works with images, video, and audio files,
+                    and we've been talking about making a PDF
+                    annotator within this tool for at least 5 years.
+                </p>
+                <p>
+                    At the moment, Mozilla maintains the state of the
+                    art for rendering PDF files in JavaScript:
+                    <a href="https://en.wikipedia.org/wiki/PDF.js">PDF.js</a>.
+                    This is what's used when you open a PDF file in
+                    Firefox.  You can embed this viewer in any web
+                    application. I haven't found much documentation,
+                    but the pieces are all here in Mozilla's repository:
+                    <a href="https://github.com/mozilla/pdf.js">https://github.com/mozilla/pdf.js</a>
+                </p>
+                <p>
+                    There is some documentation on how to use the
+                    PDF.js library in a web application, but I haven't
+                    found much on embedding and using Mozilla's viewer
+                    along with it. These are my notes I've discovered
+                    along the way, through sorting all this out.
+                </p>
+                <p>
+                    If you're embedding this viewer inside a
+                    surrounding layout, it's best to use an iframe
+                    embed instead of just throwing these DOM elements
+                    inside the view. The viewer relies on some styling
+                    that makes it difficult to embed otherwise:
+                    <a href="https://github.com/mozilla/pdf.js/issues/11626">https://github.com/mozilla/pdf.js/issues/11626</a>
+                </p>
+                <p>
+                    Here's an overview of the pieces you'll need:
+                    <ul>
+                        <li>
+                            <a href="https://github.com/mozilla/pdf.js/blob/master/web/viewer.html">web/viewer.html</a>
+                            <p>
+                                Copy this file into your application &mdash;
+                                this contains all the DOM for the
+                                viewer interface. In other words, the
+                                toolbar containing search, navigation, etc.
+                            </p>
+                        </li>
+                        <li>
+                            <a href="https://github.com/mozilla/pdf.js/blob/master/web/viewer.css">web/viewer.css</a>
+                            <p>
+                                Styling for the viewer &mdash; customize as needed.
+                            </p>
+                        </li>
+                        <li>
+                            <a href="https://github.com/mozilla/pdf.js/blob/master/web/viewer.js">web/viewer.js</a>
+                            <p>
+                                The PDFViewerApplication code.
+                            </p>
+                        </li>
+                    </ul>
+
+                    And then you'll need the compiled PDF.js files from the latest <a href="https://github.com/mozilla/pdf.js/releases/download/v2.9.359/pdfjs-2.9.359-dist.zip">pdfjs-dist.zip</a>, or <a href="https://github.com/mozilla/pdf.js#building-pdfjs">build PDF.js yourself</a>:
+
+                    <ul>
+                        <li>
+                            <code>build/pdf.js</code>
+                            <p>
+                                The main PDF.js library code.
+                            </p>
+                        </li>
+                        <li>
+                            <code>build/pdf.worker.js</code>
+                            <p>
+                                This is a helper script that's needed
+                                to load the PDF file in a separate
+                                thread.
+                            </p>
+                        </li>
+                        <li>
+                            <code>build/generic/web/locale</code>
+                            <p>
+                                Locale files that are created in the
+                                build process. Copy this directory to
+                                your setup and load
+                                the <code>locale.properties</code>
+                                file in the viewer template.
+                            </p>
+                        </li>
+                    </ul>
+                </p>
+
+                <p>
+                    You need to connect all these pieces in your customized <code>viewer.html</code> template.
+                    See <a href="https://github.com/ccnmtl/mediathread/blob/master/mediathread/templates/assetmgr/pdfjs_viewer.html#L43">Mediathread's
+                    viewer template</a> for a working example.
+                </p>
+
+                <p>
+                    You'll need to tell pdf.js which PDF to load:
+                </p>
+
+<pre>
+&lt;script&gt;
+ window.PDFViewerApplication.baseUrl = window.ASSET_URL;
+&lt;/script&gt;
+</pre>
+                <p>
+                    I'm creating an annotation tool on top of PDF.js,
+                    so I need to run initialization code after the PDF.js
+                    viewer is done starting up and loading the PDF.
+                    You can use the <code>PDFViewerApplication.initializedPromise</code>
+                    and the viewer's <code>eventBus</code> like this, to start
+                    any custom code at the right time:
+                </p>
+<pre>
+// Wait for the PDFViewerApplication to initialize
+// https://stackoverflow.com/a/68489111/173630
+PDFViewerApplication.initializedPromise.then(function() {
+    PDFViewerApplication.eventBus.on('pagerendered', function(e) {
+        // The viewer is done loading, put custom init code here.
+    });
+});
+</pre>
+
+                <p>
+                    This should be enough to get you started. I hope
+                    to eventually get a guide into Mozilla's
+                    documentation to make this PDF Viewer more
+                    approachable.
+                </p>
+            </div>
+        </article>
+        
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
