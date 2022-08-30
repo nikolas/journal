@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>A MediaWiki CAS Setup with SimpleSAMLphp</title>
+        <meta name="author" content="Nikolas Nyby">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="../../journal.css" type="text/css" />
+    </head>
+    <body>
+
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+
+            <header>
+                <h1 itemprop="name">A MediaWiki CAS Setup with SimpleSAMLphp</h1>
+                <div style="display: none;" itemprop="author">Nikolas Nyby</div>
+                <time datetime="2022-08-30" itemprop="datePublished">Tuesday, August 30, 2022</time>
+            </header>
+
+            <div itemprop="articleBody">
+                <p>
+                    I want to illustrate how to configure MediaWiki to
+                    authenticate with a central auth server using CAS.
+                    Implementing
+                    <a href="https://en.wikipedia.org/wiki/Single_sign-on">Single Sign-on</a>
+                    like this has all sorts of benefits, and the CTL's wiki
+                    was long overdue for this change.
+                </p>
+                <p>
+                    I'm going to focus on how to get things working
+                    with CAS, but if you want to use a different identity
+                    provider, you can not only use any auth method
+                    <a href="https://www.mediawiki.org/wiki/Extension:PluggableAuth">PluggableAuth</a>
+                    supports, but also
+                    <a href="https://simplesamlphp.org/docs/contributed_modules.html">
+                        any of SimpleSAML's modules
+                    </a> - many of these are included with SimpleSAML
+                    itself and are well-supported.
+                </p>
+                <p>
+                    <a href="https://simplesamlphp.org/">SimpleSAMLphp</a>
+                    is an amazing project that's been around for a
+                    long time, is very stable, and has a large user
+                    community with lots of support and documentation.
+                    It's one of those projects that's so flexible that
+                    it takes some time to learn how to use it, what it
+                    can do, and how it works.
+                </p>
+
+                <h2>SimpleSAML configuration</h2>
+                <p>
+                    I'm using nginx here, and you'll need to add a
+                    nested <code>location</code> clause in your wiki's
+                    server configuration, to make the <code>/simplesaml/</code>
+                    path accessible. The goal here is to be able to
+                    access the endpoint at https://yourwiki.edu/simplesaml/
+                    in your browser - SimpleSAML provides a web app interface
+                    here that will help you configure it. Additionally, this
+                    is required to be in place as a basic piece of how
+                    the authentication process works with SimpleSAML.
+                    After verifying a user's identity with the
+                    identity provider (a remote CAS server), the
+                    browser is redirected to the SimpleSAML
+                    application here, which then passes control over
+                    to your wiki via the mediawiki extension.
+                </p>
+                <p>
+                    In <code>/etc/nginx/sites-available/wiki.conf</code>:
+                </p>
+                <pre>
+server {
+    # ...
+
+    location ^~ /simplesaml {
+        alias /usr/share/simplesamlphp/www;
+
+        location ~ \.php(/|$) {
+            include fastcgi_params;
+            fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+            fastcgi_param SCRIPT_FILENAME $request_filename;
+            fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+            fastcgi_param PATH_INFO $fastcgi_path_info;
+            fastcgi_index index.php;
+        }
+    }
+    # ...
+}
+                </pre>
+                <p>
+                    Now the actual SimpleSAML configuration, in <code>/etc/simplesamlphp/config.php</code>
+                    and <code>/etc/simplesamlphp/authsources.php</code>.
+                    Notes for <code>config.php</code>:
+                    <ul>
+                        <li>
+                            <code>baseurlpath</code> is the web path
+                            pointing to your SimpleSAML instance, e.g.:
+                            <code>https://yourwiki.edu/simplesaml/</code>
+                        </li>
+                        <li>
+                            I changed <code>store.type</code> to
+                            memcache - I ran into a problem using
+                            phpsession.
+                        </li>
+                    </ul>
+                </p>
+                <p>
+                    Now you'll configure the connection to your CAS server.
+                </p>
+                <p>
+                    <code>authsources.php</code>:
+                </p>
+                <pre>
+'my-cas' => [
+    'cas:CAS',
+    'cas' => [
+        'login' => 'https://mycas.example.edu/cas/login',
+        'serviceValidate' => 'https://mycas.example.edu/cas/p3/serviceValidate',
+        'logout' => 'https://mycas.example.edu/cas/logout',
+        'name' => [
+            'en' => 'My Wiki',
+        ],
+        'attributes' => [
+            'username' => '/cas:serviceResponse/cas:authenticationSuccess/cas:user',
+            'givenName' => '/cas:serviceResponse/cas:authenticationSuccess/cas:attributes/cas:givenName',
+            'lastName' => '/cas:serviceResponse/cas:authenticationSuccess/cas:attributes/cas:lastName',
+            'mail' => '/cas:serviceResponse/cas:authenticationSuccess/cas:attributes/cas:mail',
+        ],
+    ],
+    // I'm not using ldap - CAS v3 should contain
+    // all the info I need
+    'ldap' => [],
+],
+                </pre>
+                
+                <p>
+                    Sometimes it can help to see all the CAS data
+                    available to you when configuring something like
+                    this. To do this, you can debug the SimpleSAML's CAS
+                    module and print out the results from the CAS server.
+                    You can add a few lines to the
+                    <a href="https://github.com/simplesamlphp/simplesamlphp-module-cas/blob/master/src/Auth/Source/CAS.php#L136">casServiceValidate()</a> function, after <code>$result</code> is fetched
+                    from the identity provider:
+                </p>
+                <pre>
+ob_start();
+var_dump($result):
+error_log(ob_get_clean(), 3, '/tmp/cas.log');
+                </pre>
+                <p>
+                    Then tail cas.log while making an auth attempt. Configure your attributes in 
+                    <code>authsources.php</code> as needed.
+                </p>
+                
+                <h2>MediaWiki configuration</h2>
+                <p>
+                    Download
+                    <a href="https://www.mediawiki.org/wiki/Extension:PluggableAuth">PluggableAuth</a>
+                    and
+                    <a href="https://www.mediawiki.org/wiki/Extension:SimpleSAMLphp">SimpleSAMLphp</a>,
+                    and unzip those into your <code>extensions</code> directory.
+                    You'll also want to install SimpleSAMLphp - either
+                    through your operating system or from their site.
+                </p>
+                <p>
+                    You'll need to specify in MediaWiki's LocalSettings file
+                    where it's installed - usually it's something like
+                    <code>/usr/share/simplesamlphp</code>
+                    or <code>/var/simplesamlphp</code>.
+
+                    <a href="https://github.com/simplesamlphp/simplesamlphp-module-cas/blob/master/src/Auth/Source/CAS.php">
+                        SimpleSAML's CAS module
+                    </a>
+                </p>
+                <pre>
+$wgSimpleSAMLphp_InstallDir = '/usr/share/simplesamlphp';
+$wgSimpleSAMLphp_AuthSourceId = 'columbia-cas';
+$wgSimpleSAMLphp_UsernameAttribute = 'username';
+$wgSimpleSAMLphp_RealNameAttribute = ['givenName', 'lastName'];
+$wgSimpleSAMLphp_EmailAttribute = 'mail';
+$wgPluggableAuth_ButtonLabel = 'Log in with CAS';
+
+wfLoadExtension( 'PluggableAuth' );
+wfLoadExtension( 'SimpleSAMLphp' );
+                </pre>
+                <p>
+                    Note that the exact syntax of these config options
+                    have changed with PluggableAuth 6.0, but you can
+                    sort out those differences if that's what you're
+                    using. I'm using 5.7 because I'm on the LTS
+                    release of MediaWiki.
+                </p>
+
+                <p>
+                    With all these steps in place, the auth process should
+                    basically be working. But then, what happens on a successful auth?
+                    Is a user created in MediaWiki? The simplest path is just to use
+                    the same username you got from the CAS server, and set up
+                    MediaWiki to allow accounts to be created automatically
+                    via the <code>autocreateaccount</code> permission.
+                    In fact, PluggableAuth's installation steps state:
+                    "The createaccount or autocreateaccount user
+                    rights must be granted to all users."
+                    That's not necessarily true, and I'll cover that
+                    in the next section.
+                </p>
+
+                <h2>User association</h2>
+                <p>
+                    Auto-creation of accounts is certainly one path
+                    forward. In my case, we needed a more nuanced
+                    approach: we have In addition, we don't want users
+                    to be able to create accounts themselves just by
+                    authenticating through CAS. We have a private wiki
+                    and opt for a more manual approach - We create
+                    users ourselves when needed.
+                </p>
+
+                <p>
+                    You can override the SimpleSAML username
+                    using its 
+                    <a href="https://github.com/wikimedia/mediawiki-extensions-SimpleSAMLphp#define-custom-user-info-provider">MandatoryUserInfoProvider</a> 
+                    functionality. In fact, you can even do some queries to 
+                    the user database during this step if CAS does
+                    provide some info that can be helpful in finding
+                    your wiki user. In our case, the email from CAS will likely
+                    match the wiki user's email. Still, that's not always 
+                    the case, so it's only provided as a fallback method.
+                    My username mapper first checks a hardcoded list of
+                    cas users and wiki users that we know about.
+                </p>
+
+                <pre>
+$usernameMap = [
+    'casUsername1' => 'wikiUser1',
+    'casUsername2' => 'wikiUser2',
+    // etc
+];
+
+// Associate a CAS user with a wiki user
+$wgSimpleSAMLphp_MandatoryUserInfoProviderFactories['username'] = function($config) {
+    return new \MediaWiki\Extension\SimpleSAMLphp\UserInfoProvider\GenericCallback(
+        function($attributes) {
+            $uni = $attributes['username'][0];
+
+            // If the uni is in our hardcoded array, just use
+            // that username
+            if (array_key_exists($uni, $usernameMap)) {
+                return $usernameMap[$uni];
+            }
+
+            if (!isset($attributes['mail'])) {
+                throw new Exception('missing email address');
+            }
+
+            $dbr = wfGetDB(DB_REPLICA);
+            $id = $dbr->selectField(
+                'user',
+                'user_id', [
+                    'user_email' => [
+                        // Look up a user via CAS mail OR
+                        // uni@example.edu
+                        $attributes['mail'][0],
+                        $uni . '@example.edu'
+                    ]
+                ]);
+
+            if ($id) {
+                $user = User::newFromId($id);
+            } else {
+                // If we didn't find a user,
+                // just return the uni
+                return $uni;
+            }
+
+            if ($user) {
+                // If there's a MediaWiki user, return
+                // its username
+                $username = $user->getName();
+            } else {
+                $username = $uni;
+            }
+
+            return $username;
+        }
+    );
+};
+                </pre>
+            </div>
+        </article>
+
+        <footer>
+            <a href="../../" title="Back">&larr;</a>
+        </footer>
+    </body>
+</html>
