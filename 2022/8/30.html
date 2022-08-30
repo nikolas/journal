@@ -207,7 +207,14 @@ wfLoadExtension( 'SimpleSAMLphp' );
                 <p>
                     Auto-creation of accounts is certainly one path
                     forward. In my case, we needed a more nuanced
-                    approach: we have In addition, we don't want users
+                    approach: we have 40 or so wiki users with no real
+                    username standard, though it's usually either
+                    firstname, or first initial + last name. These
+                    users should all have emails associated with them
+                    as well. I'll use that to associate the user with
+                    the email we get from CAS.
+
+                    In addition, we don't want users
                     to be able to create accounts themselves just by
                     authenticating through CAS. We have a private wiki
                     and opt for a more manual approach - We create
